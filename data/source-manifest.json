@@ -1,0 +1,110 @@
+{
+  "format": 1,
+  "profile": "cities500",
+  "files": [
+    {
+      "name": "countryInfo.txt",
+      "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+      "resolved_url": "https://download.geonames.org/export/dump/countryInfo.txt",
+      "downloaded_at": "2026-10-05T09:06:45.255511+00:00",
+      "license": "CC-BY-4.0",
+      "bytes": 31678,
+      "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512",
+      "headers": {
+        "Last-Modified": "Mon, 05 Oct 2026 03:17:45 GMT",
+        "ETag": "\"7bbe-65d0f536b289e\""
+      }
+    },
+    {
+      "name": "admin1CodesASCII.txt",
+      "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+      "resolved_url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+      "downloaded_at": "2026-10-05T09:06:45.605860+00:00",
+      "license": "CC-BY-4.0",
+      "bytes": 151583,
+      "sha256": "1da92a6323a5fec3176f3f743bf4cf4040fd56a876da55e46fbca23c863aa60a",
+      "headers": {
+        "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+        "ETag": "\"2501f-65d0f3ae697a1\""
+      }
+    },
+    {
+      "name": "admin2Codes.txt",
+      "url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+      "resolved_url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+      "downloaded_at": "2026-10-05T09:06:46.203251+00:00",
+      "license": "CC-BY-4.0",
+      "bytes": 2375144,
+      "sha256": "a2c9cc3cefbeca82f4af9637ab68ae4975cc78444289bc4f62718e76c59b8488",
+      "headers": {
+        "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+        "ETag": "\"243de8-65d0f3ae697a1\""
+      }
+    },
+    {
+      "name": "readme.txt",
+      "url": "https://download.geonames.org/export/dump/readme.txt",
+      "resolved_url": "https://download.geonames.org/export/dump/readme.txt",
+      "downloaded_at": "2026-10-05T09:06:46.385881+00:00",
+      "license": "CC-BY-4.0",
+      "bytes": 8843,
+      "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5",
+      "headers": {
+        "Last-Modified": "Mon, 05 Oct 2026 02:59:30 GMT",
+        "ETag": "\"228b-65d0f122332a7\""
+      }
+    },
+    {
+      "name": "cities500.zip",
+      "url": "https://download.geonames.org/export/dump/cities500.zip",
+      "resolved_url": "https://download.geonames.org/export/dump/cities500.zip",
+      "downloaded_at": "2026-10-05T09:06:47.248022+00:00",
+      "license": "CC-BY-4.0",
+      "bytes": 13866874,
+      "sha256": "75f912ddb8d04f9d3d053523b2878ee7c3cb161a3b6884469ea059636b37b37c",
+      "headers": {
+        "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+        "ETag": "\"d3977a-65d0f3ae68fd1\""
+      }
+    },
+    {
+      "name": "airports.csv",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "downloaded_at": "2026-10-05T09:06:48.400070+00:00",
+      "license": "Public Domain",
+      "bytes": 12738577,
+      "sha256": "1baffe51282f40a192490ff27654309dd9252e9dafd7a179f69b2f4fa96a75af",
+      "headers": {
+        "Last-Modified": null,
+        "ETag": "\"82a396e743a213faa9be4a0c992432bdd910a46dc1c2310e71bebd8c38558fb1\""
+      }
+    },
+    {
+      "name": "countries.csv",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/countries.csv",
+      "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/countries.csv",
+      "downloaded_at": "2026-10-05T09:06:48.754308+00:00",
+      "license": "Public Domain",
+      "bytes": 24583,
+      "sha256": "2a9dbee691125b0cdb8ceb5fe227c48c903f99c488963b8e53e2ab366521c639",
+      "headers": {
+        "Last-Modified": null,
+        "ETag": "\"c02cb6faf2442df3afb07dda7e0c40dace4102772ee52642be07b63bb7f487dd\""
+      }
+    },
+    {
+      "name": "regions.csv",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/regions.csv",
+      "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/regions.csv",
+      "downloaded_at": "2026-10-05T09:06:49.219978+00:00",
+      "license": "Public Domain",
+      "bytes": 485265,
+      "sha256": "9220d6582b804cfdec8432e5bb21456699c9df8969bf5d8886beb62ff0b1318b",
+      "headers": {
+        "Last-Modified": null,
+        "ETag": "\"1cd275e4c8939a453a8e908697eda6c3b22dd664baa4a83cbef13e797e62c36d\""
+      }
+    }
+  ]
+}

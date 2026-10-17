@@ -1,0 +1,177 @@
+{
+  "transform_version": 2,
+  "profile": "cities500",
+  "city_feature_codes": [
+    "PPL",
+    "PPLA",
+    "PPLA2",
+    "PPLA3",
+    "PPLA4",
+    "PPLA5",
+    "PPLC"
+  ],
+  "counts": {
+    "countries": 501,
+    "divisions": 55246,
+    "cities": 224578,
+    "airports": 86185
+  },
+  "exclusions": {
+    "airport_region_unassigned_placeholder": 249,
+    "city_feature_PPLX": 10561,
+    "city_feature_PPLW": 9,
+    "city_feature_PPLL": 600,
+    "city_feature_PPLQ": 41,
+    "city_feature_PPLS": 45,
+    "city_feature_PPLR": 4,
+    "city_feature_PPLH": 27,
+    "city_feature_PPLF": 47,
+    "city_feature_PPLG": 9,
+    "city_feature_PPLCH": 1,
+    "city_feature_STLMT": 48
+  },
+  "unresolved": {
+    "city_division": 340,
+    "city_nonempty_admin2_missing": 7554,
+    "city_admin2_missing_fallback_to_admin1": 7552,
+    "airport_region": 444
+  },
+  "city_division_selection": {
+    "admin1": 31863,
+    "exact_admin2": 192375,
+    "none": 340
+  },
+  "division_id_semantics": "Deepest available GeoNames ADM1/ADM2; raw unresolved paths in city-link-provenance.jsonl and all original rows in source snapshot",
+  "source_manifest": {
+    "format": 1,
+    "profile": "cities500",
+    "files": [
+      {
+        "name": "countryInfo.txt",
+        "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+        "resolved_url": "https://download.geonames.org/export/dump/countryInfo.txt",
+        "downloaded_at": "2026-10-05T09:06:45.255511+00:00",
+        "license": "CC-BY-4.0",
+        "bytes": 31678,
+        "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512",
+        "headers": {
+          "Last-Modified": "Mon, 05 Oct 2026 03:17:45 GMT",
+          "ETag": "\"7bbe-65d0f536b289e\""
+        }
+      },
+      {
+        "name": "admin1CodesASCII.txt",
+        "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+        "resolved_url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+        "downloaded_at": "2026-10-05T09:06:45.605860+00:00",
+        "license": "CC-BY-4.0",
+        "bytes": 151583,
+        "sha256": "1da92a6323a5fec3176f3f743bf4cf4040fd56a876da55e46fbca23c863aa60a",
+        "headers": {
+          "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+          "ETag": "\"2501f-65d0f3ae697a1\""
+        }
+      },
+      {
+        "name": "admin2Codes.txt",
+        "url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+        "resolved_url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+        "downloaded_at": "2026-10-05T09:06:46.203251+00:00",
+        "license": "CC-BY-4.0",
+        "bytes": 2375144,
+        "sha256": "a2c9cc3cefbeca82f4af9637ab68ae4975cc78444289bc4f62718e76c59b8488",
+        "headers": {
+          "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+          "ETag": "\"243de8-65d0f3ae697a1\""
+        }
+      },
+      {
+        "name": "readme.txt",
+        "url": "https://download.geonames.org/export/dump/readme.txt",
+        "resolved_url": "https://download.geonames.org/export/dump/readme.txt",
+        "downloaded_at": "2026-10-05T09:06:46.385881+00:00",
+        "license": "CC-BY-4.0",
+        "bytes": 8843,
+        "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5",
+        "headers": {
+          "Last-Modified": "Mon, 05 Oct 2026 02:59:30 GMT",
+          "ETag": "\"228b-65d0f122332a7\""
+        }
+      },
+      {
+        "name": "cities500.zip",
+        "url": "https://download.geonames.org/export/dump/cities500.zip",
+        "resolved_url": "https://download.geonames.org/export/dump/cities500.zip",
+        "downloaded_at": "2026-10-05T09:06:47.248022+00:00",
+        "license": "CC-BY-4.0",
+        "bytes": 13866874,
+        "sha256": "75f912ddb8d04f9d3d053523b2878ee7c3cb161a3b6884469ea059636b37b37c",
+        "headers": {
+          "Last-Modified": "Mon, 05 Oct 2026 03:10:54 GMT",
+          "ETag": "\"d3977a-65d0f3ae68fd1\""
+        }
+      },
+      {
+        "name": "airports.csv",
+        "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+        "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+        "downloaded_at": "2026-10-05T09:06:48.400070+00:00",
+        "license": "Public Domain",
+        "bytes": 12738577,
+        "sha256": "1baffe51282f40a192490ff27654309dd9252e9dafd7a179f69b2f4fa96a75af",
+        "headers": {
+          "Last-Modified": null,
+          "ETag": "\"82a396e743a213faa9be4a0c992432bdd910a46dc1c2310e71bebd8c38558fb1\""
+        }
+      },
+      {
+        "name": "countries.csv",
+        "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/countries.csv",
+        "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/countries.csv",
+        "downloaded_at": "2026-10-05T09:06:48.754308+00:00",
+        "license": "Public Domain",
+        "bytes": 24583,
+        "sha256": "2a9dbee691125b0cdb8ceb5fe227c48c903f99c488963b8e53e2ab366521c639",
+        "headers": {
+          "Last-Modified": null,
+          "ETag": "\"c02cb6faf2442df3afb07dda7e0c40dace4102772ee52642be07b63bb7f487dd\""
+        }
+      },
+      {
+        "name": "regions.csv",
+        "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/regions.csv",
+        "resolved_url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/regions.csv",
+        "downloaded_at": "2026-10-05T09:06:49.219978+00:00",
+        "license": "Public Domain",
+        "bytes": 485265,
+        "sha256": "9220d6582b804cfdec8432e5bb21456699c9df8969bf5d8886beb62ff0b1318b",
+        "headers": {
+          "Last-Modified": null,
+          "ETag": "\"1cd275e4c8939a453a8e908697eda6c3b22dd664baa4a83cbef13e797e62c36d\""
+        }
+      }
+    ]
+  },
+  "output_files": {
+    "airports.jsonl": {
+      "sha256": "f1fc1261ca16f60f8ccd953ecb81b0709ad66dc9b4d80a497d449597fe9324ee",
+      "bytes": 28846383
+    },
+    "cities.jsonl": {
+      "sha256": "5cb888462631d42979e6ae96e4ffb2cbcc331fab2030e2fd686a83e1c9c7ae3c",
+      "bytes": 52284666
+    },
+    "city-link-provenance.jsonl": {
+      "sha256": "050f8838a5794a05ba662d3012559206a1dfd39e2eaa86ee3c411e1219df5b41",
+      "bytes": 1564401
+    },
+    "countries.jsonl": {
+      "sha256": "4c7744aeb2c0c14e90fbf47351d96c937cd963b0b5d23527cfacc5d91ca21fac",
+      "bytes": 56834
+    },
+    "divisions.jsonl": {
+      "sha256": "79329e2f05841b6e047babbfa7790e98a57619abf890623be35f504992b66262",
+      "bytes": 10295478
+    }
+  }
+}

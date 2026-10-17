@@ -1,0 +1,29 @@
+{
+  "tables": {
+    "airports": {
+      "bytes": 51347456,
+      "MB_decimal": 51.347456
+    },
+    "cities": {
+      "bytes": 130711552,
+      "MB_decimal": 130.711552
+    },
+    "countries": {
+      "bytes": 278528,
+      "MB_decimal": 0.278528
+    },
+    "dataset_version": {
+      "bytes": 24576,
+      "MB_decimal": 0.024576
+    },
+    "divisions": {
+      "bytes": 40321024,
+      "MB_decimal": 40.321024
+    }
+  },
+  "database": {
+    "bytes": 230684351,
+    "MB_decimal": 230.684351
+  },
+  "scope": "pg_total_relation_size includes indexes and TOAST; database size also includes other relations. MB = 1000000 bytes."
+}

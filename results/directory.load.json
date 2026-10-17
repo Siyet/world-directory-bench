@@ -1,0 +1,14 @@
+{
+  "counts": {
+    "countries": 501,
+    "divisions": 55246,
+    "cities": 224578,
+    "airports": 86185
+  },
+  "sha256": {
+    "countries.jsonl": "4c7744aeb2c0c14e90fbf47351d96c937cd963b0b5d23527cfacc5d91ca21fac",
+    "divisions.jsonl": "79329e2f05841b6e047babbfa7790e98a57619abf890623be35f504992b66262",
+    "cities.jsonl": "5cb888462631d42979e6ae96e4ffb2cbcc331fab2030e2fd686a83e1c9c7ae3c",
+    "airports.jsonl": "f1fc1261ca16f60f8ccd953ecb81b0709ad66dc9b4d80a497d449597fe9324ee"
+  }
+}

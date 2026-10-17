@@ -1,0 +1,674 @@
+{
+  "pairs": {
+    "pyd-msgspec-schema": {
+      "A": "pydantic",
+      "B": "msgspec-schema"
+    },
+    "schema-none": {
+      "A": "msgspec-schema",
+      "B": "msgspec-none-orm"
+    },
+    "pyd-none": {
+      "A": "pydantic",
+      "B": "msgspec-none-orm"
+    },
+    "orm-asyncpg": {
+      "A": "msgspec-none-orm",
+      "B": "msgspec-none-asyncpg"
+    },
+    "asyncio-uvloop": {
+      "A": "msgspec-none-asyncpg",
+      "B": "fastapi-msgspec"
+    },
+    "uvloop-cache": {
+      "A": "fastapi-msgspec",
+      "B": "cache"
+    },
+    "fastapi-msgpack-cache": {
+      "A": "cache",
+      "B": "cache-msgpack"
+    },
+    "cache-vs-optimizations": {
+      "A": "fastapi-msgspec",
+      "B": "pydantic-cache"
+    },
+    "std-msgspec": {
+      "A": "pydantic",
+      "B": "fastapi-msgspec"
+    },
+    "msgspec-litestar": {
+      "A": "fastapi-msgspec",
+      "B": "litestar"
+    },
+    "msgspec-go": {
+      "A": "fastapi-msgspec",
+      "B": "go"
+    },
+    "post-pyd-msgspec-schema": {
+      "A": "pydantic-post",
+      "B": "msgspec-schema-post"
+    },
+    "post-std-msgspec": {
+      "A": "pydantic-post",
+      "B": "fastapi-msgspec-post"
+    },
+    "ingest-pyd-msgspec": {
+      "A": "pydantic-ingest",
+      "B": "msgspec-schema-ingest"
+    }
+  },
+  "random_seed": 202610140900,
+  "warmup_seconds": 30,
+  "measurement_seconds": 60,
+  "blocks_per_pair": 8,
+  "points": 448,
+  "hashseeds": [
+    2100,
+    2101,
+    2102,
+    2103,
+    2104,
+    2105,
+    2106,
+    2107
+  ],
+  "concurrency": 20,
+  "cold_every": 10,
+  "cold_pool": 80000,
+  "cold_offsets": {
+    "warmup": 0,
+    "measurement": 25000
+  },
+  "redis_cpu": 0.2,
+  "redis_memory_mib": 1024,
+  "api_cpu": 1,
+  "generator_cpu": 2,
+  "pg_cpu": 0.75,
+  "cache_ttl_seconds": 60,
+  "schedule": [
+    {
+      "round": 0,
+      "pair": "msgspec-litestar",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "post-std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "fastapi-msgpack-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "cache-vs-optimizations",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "pyd-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "ingest-pyd-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "asyncio-uvloop",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "orm-asyncpg",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "msgspec-go",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "uvloop-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "asyncio-uvloop",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "cache-vs-optimizations",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "msgspec-litestar",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "msgspec-go",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "ingest-pyd-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "orm-asyncpg",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "fastapi-msgpack-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "post-std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "uvloop-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "pyd-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "uvloop-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "msgspec-go",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "orm-asyncpg",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "asyncio-uvloop",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "ingest-pyd-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "post-std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "fastapi-msgpack-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "cache-vs-optimizations",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "msgspec-litestar",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "pyd-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "uvloop-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "asyncio-uvloop",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "cache-vs-optimizations",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "msgspec-litestar",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "ingest-pyd-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "post-std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "pyd-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "msgspec-go",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "fastapi-msgpack-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "orm-asyncpg",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "orm-asyncpg",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "fastapi-msgpack-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "pyd-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "cache-vs-optimizations",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "asyncio-uvloop",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "ingest-pyd-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "msgspec-litestar",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "post-std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "msgspec-go",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "uvloop-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "uvloop-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "asyncio-uvloop",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "post-std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "cache-vs-optimizations",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "orm-asyncpg",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "msgspec-go",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "fastapi-msgpack-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "ingest-pyd-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "msgspec-litestar",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "pyd-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "ingest-pyd-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "uvloop-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "asyncio-uvloop",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "post-std-msgspec",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "msgspec-litestar",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "msgspec-go",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "pyd-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "cache-vs-optimizations",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "orm-asyncpg",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "fastapi-msgpack-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "post-std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "post-pyd-msgspec-schema",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "msgspec-go",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "fastapi-msgpack-cache",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "orm-asyncpg",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "ingest-pyd-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "uvloop-cache",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "asyncio-uvloop",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "pyd-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "std-msgspec",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "cache-vs-optimizations",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "msgspec-litestar",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "pyd-msgspec-schema",
+      "order": "BAAB"
+    }
+  ],
+  "matched_rate": 800,
+  "interpretation_rules": {
+    "lower_bound": "A variant whose mean API CPU over all its main points is below 0.95 core is reported as an RPS lower bound (client/Redis/latency limited), with API CPU per response as secondary metric, unless the pair is flagged by direction_under_client_limit, where it is the primary metric; never as a server capacity ratio. Classified once per variant.",
+    "redis": "Redis gets 0.2 CPU and 1024 MiB on cpuset 1 (maxmemory 900mb, noeviction), because cold misses keep up to a minute of 25 KB pages. If Redis throttled time exceeds 1% of the measurement window in any point of a variant, that variant is reported as Redis-limited.",
+    "pair_ratio": "The pair ratio is the measured throughput ratio with 20 closed-loop clients and memoized body verification on 2 generator CPUs; not a capacity ratio. A direction may be claimed only if the nominal interval excludes 0. The same rule applies to API CPU per response (comparisons[pair].api_cpu_us_per_response, same estimator): a CPU direction is stated only if its interval excludes 0. The primary metric of each pair is fixed in advance: RPS, or API CPU per response for pairs flagged by direction_under_client_limit; the other metric is descriptive and never replaces a null primary result. When neither side is a lower bound (API at least 0.95 core on both), the CPU interval mirrors the RPS interval and is not independent evidence. API CPU per response is reported with the RPS it was measured at; for a lower-bound side it is compared at different loads. For fastapi-msgpack-cache, manipulation_check fixes the primary metric (API CPU per response) and its outcomes; the RPS of that pair stays a secondary metric under this rule, and an RPS direction is stated only if its interval excludes 0, the pair is not flagged by direction_under_client_limit and the CPU outcome is an advantage. analyze.py records the decision per pair: primary_metric, primary_direction_claim_allowed, rps_direction_claim_allowed, cpu_compared_at_different_loads (a side is a lower bound) and cpu_interval_mirrors_rps (neither side is a lower bound).",
+    "direction_under_client_limit": "Generator saturation is anchored to generator CPU in the static controls (static-pre before main, static after main; mean of all four). Static RPS is not used as a limit, because generator cost per response differs between the static Go server and uvicorn responses. If either side of a pair has mean generator CPU >= 0.9 x static generator CPU, the RPS direction of that pair is not reported as a server result; API CPU per response is then the primary metric. Generator CPU per response is reported per variant. Litestar and Go are compared with FastAPI msgspec, not with each other. Series 3: the static control is not generator-saturated (static-pre: generator about 1.5-1.6 of its 2 cores, API about 0.9 core at about 42k RPS, no throttling; what limits it was not identified, the static server runs with GOMAXPROCS=1 at about 0.9 core), so the 0.9 x static generator CPU threshold is conservative rather than a ceiling.",
+    "host_drift": "The host is a VM on the provider's dedicated-CPU plan without other user workloads; per-point steal and softirq shares of CPUs 0-3 are reported and a point with steal above 1% of the window is flagged. Static controls before and after main are compared by RPS, generator CPU per response and API CPU per response; a difference above 10% in RPS or generator CPU per response flags the series as host-drifted (static API CPU per response, about 20 us, is reported but too small for a stable percentage), reported with the results. The per-round values of fastapi-msgspec (present in six pairs, every round) are reported as an in-series drift trace. Per-response CPU values of this series are never set next to values of other series.",
+    "equal_load": "After main and headroom, each of cache, cache-msgpack, pydantic-cache, fastapi-msgspec, litestar and go runs two open-loop points at 800 offered RPS (30 s, after 15 s throughput warmup), order as listed then reversed. MATCHED_RATE follows matched-rate-rule.md: 0.7 x the minimum throughput smoke RPS of these six variants on this server, rounded down to a multiple of 100, fixed before this protocol. The standard pydantic variant is excluded because its throughput is below any common rate useful for the others. API CPU per response at this equal load is reported descriptively (no interval) alongside the main-series value, which depends on load. Open-loop mode uses the same request mix and counts X-Cache values by request kind but does not check content type or a single X-Cache header.",
+    "manipulation_check": "Preflight must show stored values with the bytes: prefix and the NonPickler/check_repr off serializer for cache-msgpack, a JSON object and JsonPickler/check_repr on for cache and pydantic-cache; a corrupted entry answered with 500; a valid entry in another encoding (extra space for JSON, other key order for msgpack) answered with 200 and the same body. Variants without a cache answer X-Cache: bypass and write nothing to Redis. In pair fastapi-msgpack-cache the stored format is verified at every point (prefix sample), which is the manipulation check. The CPU estimate is the nominal 95% t interval (7 degrees of freedom) of the per-block log-ratio B/A of API CPU per response, computed like the RPS ratio (analyze.py, comparisons[pair].api_cpu_us_per_response). Three outcomes: the whole interval below 0%, msgpack CPU advantage, stated; the interval contains 0, no detectable difference; the whole interval above 0%, msgpack costlier, stated. In the last two cases the pair stays valid, no msgpack advantage in any metric of this pair (RPS, CPU per response or equal-load values) is claimed, equal-load values are shown as values only, and the Cashews thunder protection from path_disclosure may be named only as a possible explanation from the pre-protocol hot-page diagnostics, not tested in this series.",
+    "cache_hits": "Every cached point (cache, cache-msgpack, pydantic-cache) must have an in-window hit share within [0.88, 0.905], every cold request answered with X-Cache: miss, and at most 3 x 20 hot-page misses (expiry of the 60 s entry with concurrent clients); otherwise the campaign stops. Every cached point checks the stored prefix of a sample of entries after measurement.",
+    "validation": "Cached data validated before every reply: cache: strict msgspec.convert(Page[City]) of json.loads output; cache-msgpack: msgspec.msgpack.decode(type=Page[City]); pydantic-cache: Page[City].model_validate(strict=True) of json.loads output, then FastAPI serializes it through response_model as in the standard app. Without a cache every response is read from PostgreSQL and passes the same DTO and contract preparation as in the chain.",
+    "claim_scope": "Pair fastapi-msgpack-cache: storing msgpack bytes and decoding them with msgspec is a change of what the view cache stores; not presented as a Cashews setting. Pair cache-vs-optimizations: tests whether a view cache on the unoptimized standard FastAPI app (Pydantic schema, SQLAlchemy ORM, asyncio) outperforms all chain optimizations without a cache on GET traffic with about 90% hits (one hot page, unique cold pages); the result is specific to this hit rate and query. The statement that the cache outperforms the optimizations is made only if the RPS interval of this pair excludes 0 in favour of B, the pair is not client-limited, and API CPU per response at equal load is also lower for B at both matched points (the higher B point below the lower A point); analyze.py records the three conditions in claim_scope_cache_vs_optimizations; the no-cache side may idle a few percent waiting for PostgreSQL with 20 closed-loop clients, so RPS alone can overstate the cache advantage. Any RPS statement for a variant classified as a lower bound says so.",
+    "headroom": "After main, the client 1/2/2/1 CPU sweep runs for go, litestar and fastapi-msgspec, plus static controls.",
+    "path_disclosure": "Framework pairs read PostgreSQL on every request: FastAPI msgspec variant uses MsgspecRouter without output schema, direct asyncpg and uvloop; Litestar uses the same service, asyncpg repository and uvloop with hand-parsed query parameters and the same msgspec conversion, and encodes the prepared Struct page; Go uses net/http, database/sql with pgx and stdlib encoding/json with explicit field checks. The standard variant is FastAPI with Pydantic response_model, SQLAlchemy ORM and asyncio. Pair fastapi-msgpack-cache bundles four changes: msgpack instead of JSON storage (including the miss-path encode), no json.loads, no repr, msgpack decode instead of convert. Generator CPU per response differs by server type, so closed-loop RPS against Go includes a client-side effect. Cashews @cache keeps its default protected=True (thunder protection): concurrent calls with the same key share one backend read and one deserialization. Diagnostics before this protocol (evidence/redisdiag-*, hot page only): 3279 Redis GET for 65345 responses with 20 clients, 12931 for 51713 with 4 clients. So on the JSON cache path json.loads and the repr check are shared by concurrent hits of the hot page, while validation in the handler (msgspec.convert or msgspec.msgpack.decode with the type, Pydantic model_validate) runs for every response. In the same diagnostics the JSON-versus-msgpack cache difference fell from about 12% of API CPU per response with 4 clients to none with 20 clients (hot page only, evidence/diag-*, gcoff-*), also with the cyclic GC disabled. X-Cache is set to hit before the cached call, so requests that wait on a coalesced miss are labelled hit, although they did not read Redis themselves; only the first caller is labelled miss. POST variants: FastAPI with the same app; Pydantic parses the body through FastAPI (json.loads, then validation), the msgspec router decodes the raw body with a msgspec Decoder; BodyLimits middleware scans every POST body in both.",
+    "request_mix": "GET variants: every tenth request (global counter) is a unique cold page from the pool, taken sequentially from offset 0 in the warmup run and from offset 25000 in the measurement run (pool 80000) of each point; an exhausted pool is a client error. Variants without a cache serve the same mix from PostgreSQL. POST search variants cycle through eight search bodies; ingest variants send one batch case; no cache in either. Static controls use only the hot page.",
+    "post": "POST search pairs use the GET configurations with the search body as input; the response contract (Page[City] JSON body) is the same on both sides. Their search bodies are small (about 120-400 bytes), so the share of input decoding is not identifiable from them: they also change the output validation and serialization path (Pydantic response_model vs msgspec typed output; in post-std-msgspec output validation is off, OUTPUT_MODEL=none, and the repository and event loop change too), the SQL differs from GET, and the BodyLimits scan of every search body costs more than the decoding itself. The input contract is isolated by ingest-pyd-msgspec: a 23 KB batch decoded and validated by Pydantic through FastAPI (json.loads, then validation) or by the msgspec router (msgspec Decoder), no database, a constant small response; the BodyLimits per-byte scan is skipped on that route only (size, media type and UTF-8 checks remain), so NaN or duplicate keys in an invalid batch may be classified differently by the two paths; preflight compares valid and selected invalid batches. The route has no cache semantics and sends no X-Cache header (checked in preflight), so the generator runs ingest points without an X-Cache expectation; every response body is still verified. The difference between POST and GET API CPU per response of the same variant is reported descriptively (same series), never as a sum or difference of pair percentages."
+  },
+  "scope": "Series 3 on the same dedicated server, stack, durations, estimator and guards as the second series (talk-srv-msgcache-20261013), with three changes requested by the user: 20 closed-loop clients instead of 4; GET traffic with about 90% view-cache hits (every tenth request asks for a unique full page after a random city id, never repeated within a generator process, all other requests ask for the hot page /cities?limit=100); and POST requests with JSON bodies as input contracts: /cities/search with a search body (list filters, a population range, order and keyset pagination; the eight bodies were chosen with cheap PostgreSQL plans after the first POST smoke with selective bodies saturated PostgreSQL, see evidence/superseded-post1 and post-bodies-explain.txt), and /cities/validate with a 100-city batch (the hot page items, about 23 KB) that is only decoded and validated, without database access. The generator verifies every 200 body either fully against the independent expected value or by byte identity with a body of the same case that already passed the full check in the same process (memoized verification; generator CPU per response fell from about 930 us in series 2 to well below the API for the Python variants, about 185 us with Go, mostly canonical hashing of cold pages); cold pages are checked by a canonical SHA-256 recorded from two independent implementations (Pydantic + SQLAlchemy ORM and Go + pgx) that agreed on all pages. Fourteen pairs: the whole FastAPI chain (pyd-msgspec-schema, schema-none, pyd-none, orm-asyncpg, asyncio-uvloop, uvloop-cache, fastapi-msgpack-cache), cache-vs-optimizations, std-msgspec, msgspec-litestar, msgspec-go, two POST search pairs (post-pyd-msgspec-schema, post-std-msgspec) whose variants are the GET configurations with the search body, and ingest-pyd-msgspec (Pydantic -> msgspec, the batch check). All values of this series are reported as series 3 and never set next to values of other series without a label.",
+  "environment": "Timeweb Cloud msk-1, Dedicated High CPU, 6 vCPU (KVM, lscpu: AMD EPYC-Rome), 8 GB, Ubuntu 24.04.5, kernel 6.8, Docker 29.1.3, cgroup v2 with the systemd driver. Benchmark containers pinned: API cpuset 0, PostgreSQL/Redis/sampler cpuset 1, generator cpuset 2-3; docker/containerd, all running, timer-activated and known on-demand systemd services, user sessions and NIC interrupts restricted to CPUs 4-5 at runtime (system.slice itself stays 0-5 because the container scopes live there); apt, fwupd, motd-news, man-db and fstrim timers stopped for the campaign. No other user workloads; the zabbix agent of the provider and sysstat run on CPUs 4-5. Host isolation is snapshotted and then asserted at main start and end and at post start and end (host-guard-*.json). static_pre and post run without the host-telemetry and container-event monitors; their own container inventory guard per point still applies.",
+  "platform_note": "All runtime images and Go executables are amd64. msgspec is the official 0.22.0 PyPI wheel (the Mac series used a post-release snapshot labelled 0.22.0 that also contained the #1130 _eval_type change and a vendored PCRE2 pattern engine; the benchmark schemas have no pattern constraints); other Python packages are the same versions as the Mac site.",
+  "environment_guards": "Pinned image IDs and source bindings; own container inventory before/after each point, lifecycle Docker events during main; host isolation guard at main start and end and at post start and end. Host aggregate and per-CPU ticks (including steal) every 10 s, per-CPU /proc/stat at 1 Hz in the sampler. PSI/RPS are diagnostics, not rejection thresholds.",
+  "telemetry": "1Hz, API init-process RSS; window selected by generator Unix timestamps; realtime/monotonic differences audited, boundary uncertainty reported if clock steps. RPS and bins monotonic.",
+  "duration_selection": "Fixed conservative 30/60 as in the Mac series; no result-dependent duration adjustment.",
+  "failure_policy": "Any load error, missing telemetry, source/image change, foreign-container event or failed guard stops campaign; no retry or outlier exclusion."
+}
