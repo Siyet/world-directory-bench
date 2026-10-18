@@ -9,6 +9,69 @@ with Pydantic models and with msgspec Structs and `MsgspecRouter`, plus other va
 The results are from series 3 (earlier series are not published), run on 2026-10-14 on
 a cloud VM with 6 dedicated vCPUs (AMD EPYC-Rome, KVM, Ubuntu 24.04.5).
 
+## Results
+
+Each row is a separate paired comparison of two variants (A and B) of the same API, 8
+blocks per comparison; for Go, B is a separate implementation of the API. Requests per
+second are the geometric means of each side, CPU time per response is the arithmetic
+mean, and the changes are the paired estimates with a nominal 95% interval. The rows are
+not additive. The series is flagged for host drift; see Method.
+
+| Endpoint | Change (A → B) | Requests/s, A → B | Throughput change [95% interval] | CPU µs per response, A → B | CPU change [95% interval] |
+|---|---|---|---|---|---|
+| GET | Standard FastAPI → FastAPI + msgspec, asyncpg, uvloop | 515 → 1,162 | +125.5% [+123.4, +127.6] | 1,940 → 860 | -55.7% [-56.1, -55.2] |
+| GET | Pydantic models → msgspec Structs (`MsgspecRouter`) | 514 → 569 | +10.7% [+9.9, +11.5] | 1,944 → 1,757 | -9.7% [-10.3, -9.0] |
+| GET | Struct `response_model` → `response_model=None` | 566 → 566 | 0.0% [-1.0, +1.0] ¹ | 1,767 → 1,767 | 0.0% [-1.0, +1.0] ¹ |
+| GET | Pydantic models → msgspec, `response_model=None` | 511 → 569 | +11.4% [+8.8, +14.0] | 1,959 → 1,758 | -10.2% [-12.3, -8.1] |
+| GET | SQLAlchemy ORM → asyncpg queries | 568 → 1,152 | +102.7% [+100.8, +104.6] | 1,759 → 868 | -50.7% [-51.1, -50.2] |
+| GET | asyncio → uvloop | 1,160 → 1,166 | +0.6% [-0.9, +2.1] ¹ | 862 → 857 | -0.5% [-2.0, +1.0] ¹ |
+| GET | No cache → Redis view cache | 1,167 → 1,771 | +51.7% [+50.9, +52.6] | 856 → 564 | -34.1% [-34.5, -33.7] |
+| GET | Cache values in JSON → MessagePack | 1,766 → 1,830 | +3.6% [+2.5, +4.8] | 566 → 546 | -3.5% [-4.6, -2.4] |
+| GET | All optimizations without cache → standard FastAPI with the cache | 1,171 → 1,221 | +4.3% [+3.9, +4.8] | 854 → 819 | -4.1% [-4.6, -3.7] |
+| GET | FastAPI + msgspec, asyncpg, uvloop → Litestar (same service, asyncpg, uvloop) | 1,165 → 1,409 | +20.9% [+19.6, +22.3] | 858 → 710 | -17.3% [-18.2, -16.4] |
+| GET | FastAPI + msgspec, asyncpg, uvloop → Go (net/http, pgx) | 1,169 → 4,204 | +259.5% [+256.0, +262.9] | 855 → 236 | -72.4% [-72.7, -72.2] |
+| POST search | Pydantic models → msgspec Structs (`MsgspecRouter`) | 447 → 505 | +12.9% [+12.1, +13.7] | 2,237 → 1,981 | -11.4% [-12.1, -10.8] |
+| POST search | Standard FastAPI → FastAPI + msgspec, asyncpg, uvloop | 445 → 1,172 | +163.3% [+160.8, +165.8] | 2,246 → 853 | -62.0% [-62.4, -61.7] |
+| POST validate | Pydantic models → msgspec Structs (`MsgspecRouter`) | 1,610 → 2,703 | +67.9% [+67.0, +68.7] | 621 → 370 | -40.4% [-40.7, -40.1] |
+
+¹ The interval includes zero, so no difference was detected.
+
+- Standard FastAPI: Pydantic models, SQLAlchemy ORM, asyncio. "FastAPI + msgspec,
+  asyncpg, uvloop" is `MsgspecRouter` with `response_model=None`, asyncpg queries and
+  uvloop; it is also the A side of the "No cache", "All optimizations without cache",
+  Litestar and Go rows.
+- The rows from "Pydantic models → msgspec Structs" to "No cache → Redis view cache" form
+  a chain in which each step, apart from the combined Pydantic → `response_model=None`
+  row, changes one setting. The MessagePack row stores MessagePack bytes in Redis and
+  decodes them with msgspec, instead of JSON with `json.loads`, a repr check and
+  `msgspec.convert`.
+- In the Litestar row, the same service runs on Litestar with hand-parsed query
+  parameters. The Go variant uses net/http, database/sql with pgx and `encoding/json`.
+  These rows are not router comparisons, and Litestar and Go are not compared with each
+  other. Load generator CPU per response is lower with Go, so the Go throughput includes
+  a client-side effect.
+- GET requests: 9 of 10 go to the same page, `/cities?limit=100`, and every 10th to a
+  page after a random city id (`after_id`) that is not repeated within the run. With the
+  Redis view cache, about 90% of GET requests are cache hits; without it, PostgreSQL is
+  queried for every request.
+- In POST search, small JSON filter bodies are sent to `/cities/search`. In POST
+  validate, a JSON body of 100 cities (about 23 KB) is sent to `/cities/validate`, where
+  it is only decoded and validated, without database access.
+- Throughput is measured with 20 closed-loop clients at saturation of the single API
+  core. The ratios are throughput ratios under this load, not capacity ratios, and the
+  CPU columns mirror the throughput columns rather than being independent evidence.
+- The cache rows depend on the request mix (about 90% hits on one hot page) and on
+  concurrency: with 20 clients, concurrent hits of the hot page share one Redis read and,
+  for the JSON cache, one `json.loads` and repr check (Cashews `protected=True`);
+  validation, including the MessagePack decode, is done for every response. At a fixed
+  800 requests per second (`equal_load` in `results/summary.json`), API CPU per response
+  was about 1,080 µs without the cache, 1,140 µs with the JSON cache, 845 µs with the
+  MessagePack cache and 1,240 µs for standard FastAPI with the cache, which used 0.995 of
+  the API core at that rate. At this rate the JSON cache did not reduce CPU per response,
+  and standard FastAPI with the cache used more CPU per response than all optimizations
+  without the cache. So these results do not show that adding the cache to standard
+  FastAPI outperforms the optimizations (`claim_scope_cache_vs_optimizations`).
+
 ## Data
 
 - Sources: the GeoNames `cities500` export with country and administrative codes
