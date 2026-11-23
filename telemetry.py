@@ -2,6 +2,12 @@ import json, os, sys, time
 from pathlib import Path
 
 targets = json.loads(sys.argv[1])
+# Optional processes outside the container cgroups (name -> pid), e.g. the log pipeline.
+procs = json.loads(sys.argv[2]) if len(sys.argv) > 2 else {}
+TICK_US = 1e6 / os.sysconf('SC_CLK_TCK')
+def proc_cpu(pid):
+    f = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
+    return {'utime_usec': int(f[11]) * TICK_US, 'stime_usec': int(f[12]) * TICK_US, 'cpus_allowed': counters(Path(f'/proc/{pid}/status')).get('Cpus_allowed_list:', '').strip()}
 def counters(path):
     # Skip valueless lines such as an empty 'Groups:' of a process without supplementary groups.
     return dict(parts for line in path.read_text().splitlines() if len(parts:=line.split(maxsplit=1))==2)
@@ -27,6 +33,13 @@ while True:
             }
         except (OSError, ValueError, IndexError) as e:
             out['targets'][name] = {'error': str(e)}
+    if procs:
+        out['procs'] = {}
+        for name, pid in procs.items():
+            try:
+                out['procs'][name] = {'pid': pid, **proc_cpu(pid)}
+            except (OSError, ValueError, IndexError) as e:
+                out['procs'][name] = {'error': str(e)}
     out['vm']['cpu_stat'] = Path('/proc/stat').read_text()
     out['vm']['loadavg'] = Path('/proc/loadavg').read_text().strip()
     out['vm']['cpu_pressure'] = pressure(Path('/proc/pressure/cpu'))

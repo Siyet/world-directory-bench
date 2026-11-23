@@ -1,0 +1,42 @@
+{
+  "commit": "d774e97b3ab86b2fecf6f566017b69c3cde7e53e",
+  "tree": "6e78de6c7b38fc67737df0d9a11c9a8758e146e5",
+  "builder": "python:3.14.10@sha256:a0362a0fda63931168dbae73de63cdffd798aa7a52c8cf7facaf2aec2c91238e",
+  "setuptools": "84.2.1",
+  "wheels": {
+    "msgspec_fastapi-0.0.4-cp311-abi3-linux_x86_64.whl": "5cc2659925650de0b3c096d48c039e51f2eb096794e1b65a0b325fc885d9aafc",
+    "regexrs_py-0.2.0-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": "b079d42212745f355aa9fec04d0e2d64256f2c329a94a62842620abcd1f1e4b2"
+  },
+  "site_sha256": {
+    "msgspec_fastapi/__init__.py": "31484e5879bdf8731ee8c1741b25ec9050bb6bedd4b4fb775e5be1fd20ee8ca8",
+    "msgspec_fastapi/_defaults.abi3.so": "5176aa649a48d596292a35dd83c0d814935e64ee9ea4e42f3987b5eb3b6d241f",
+    "msgspec_fastapi/_defaults.pyi": "2dc4e32a83d317d72e1f3d330f15daac1e94f1d22e478ea4e7ea1c42382d0f71",
+    "msgspec_fastapi/body_errors.py": "290086b83ce963902d8be6ee33b8a214dcf5f9e915609880a967cf78d8c03f60",
+    "msgspec_fastapi/defaults.py": "68e3e579d175e69c89f879324a1a3691fdc638cb357591e489a05e833e37c4b0",
+    "msgspec_fastapi/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "msgspec_fastapi/responses.py": "7b46df1e6eb1c29d771081cc933e2531d4b1977e1a5ab730f92bf965c5f87d63",
+    "msgspec_fastapi/router.py": "e84ee25f147f1f76cab7b4068b59ecaa8ba33fa9cb5c468d74a607fae11d1ec4",
+    "msgspec_fastapi/validation.py": "b21442c134e27ba6abe01581573e70088f5dad7f596a47939de495aad0592a55",
+    "msgspec_fastapi-0.0.4.dist-info/INSTALLER": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+    "msgspec_fastapi-0.0.4.dist-info/METADATA": "f5b97c89809b0b4e077c937d8eaca294c56cd1bcbe3e186e5e4265414eb9c4a5",
+    "msgspec_fastapi-0.0.4.dist-info/RECORD": "de232eed7bd349b553ae386f2c7eb55aa60cc85c63197964bb540414a838b29f",
+    "msgspec_fastapi-0.0.4.dist-info/REQUESTED": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "msgspec_fastapi-0.0.4.dist-info/WHEEL": "da9210f39f909b6acc85504fb5b59d2893ed671069d6cd6e4f22263cd9d2b150",
+    "msgspec_fastapi-0.0.4.dist-info/direct_url.json": "a28a0cc350f943153bd19f8d70074d86aed563d72b767e1cc841128bec7b8b5b",
+    "msgspec_fastapi-0.0.4.dist-info/licenses/LICENSE": "fad71d723807c74452d188282a7aff58939a633e600976a32849e630746fc247",
+    "msgspec_fastapi-0.0.4.dist-info/top_level.txt": "e222f70c0e0df70a32590fa3b9473f9b6fb1323951e5dc83b0cb3df0db4f3f71",
+    "regex_rs/__init__.py": "4e596c84137265aaaab5121fc1c7780385f9b6a24b5b6c4719bbc4ab477e2f85",
+    "regex_rs/_errors.py": "70afb2f06549e5f60f010cbad0153c5a95c10068d10bd12f470deb53f3f47d61",
+    "regex_rs/_regex_rs.abi3.so": "aa0ce827f6f682341fddc4148fea55ddcd693f38646959ab5cb3542890264857",
+    "regex_rs/_regex_rs.pyi": "e29ae6802224707813a855af55e63440d42da484310a04d89910d2c2cff906f4",
+    "regex_rs/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regexrs_py-0.2.0.dist-info/INSTALLER": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+    "regexrs_py-0.2.0.dist-info/METADATA": "3682ab3860a69d5196429cf9ce8755949bbdd361be091a3400567700a1f21bca",
+    "regexrs_py-0.2.0.dist-info/RECORD": "aa0b7a9afd208f78ba51db613c5d71bb444f1d8519a8ab973f5abf51da3c24be",
+    "regexrs_py-0.2.0.dist-info/REQUESTED": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regexrs_py-0.2.0.dist-info/WHEEL": "6df0e554d44da343aac04d91b6039296daf0915bf2b22d89517bc0665ac4378e",
+    "regexrs_py-0.2.0.dist-info/direct_url.json": "05db96de687b145845dd91ccbd33975d6cab967a24c1b6e24f3947e57a622b3c",
+    "regexrs_py-0.2.0.dist-info/licenses/LICENSE": "034e23e828ee8074ee8eb2f6551b84c3b03c36342fe0f5f8715af1aaaf033a7a",
+    "regexrs_py-0.2.0.dist-info/sboms/regexrs-py.cyclonedx.json": "1e95c708a49205157ba3ec5a60e58d093fa65087aa53956577faee069519b23b"
+  }
+}

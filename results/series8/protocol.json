@@ -1,0 +1,205 @@
+{
+  "pairs": {
+    "h11-httptools": {
+      "A": "fastapi-msgspec",
+      "B": "fastapi-msgspec-httptools"
+    },
+    "accesslog-off-on": {
+      "A": "fastapi-msgspec",
+      "B": "fastapi-msgspec-accesslog"
+    },
+    "aa-get-fast": {
+      "A": "fastapi-msgspec",
+      "B": "fastapi-msgspec"
+    }
+  },
+  "random_seed": 202611180900,
+  "warmup_seconds": 30,
+  "measurement_seconds": 60,
+  "blocks_per_pair": 8,
+  "points": 96,
+  "hashseeds": [
+    2100,
+    2101,
+    2102,
+    2103,
+    2104,
+    2105,
+    2106,
+    2107
+  ],
+  "concurrency": 20,
+  "cold_every": 10,
+  "cold_pool": 80000,
+  "cold_offsets": {
+    "warmup": 0,
+    "measurement": 25000
+  },
+  "redis_cpu": 0.2,
+  "redis_memory_mib": 1024,
+  "api_cpu": 1,
+  "generator_cpu": 2,
+  "pg_cpu": 0.75,
+  "schedule": [
+    {
+      "round": 0,
+      "pair": "aa-get-fast",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "h11-httptools",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "accesslog-off-on",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "accesslog-off-on",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "aa-get-fast",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "h11-httptools",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "accesslog-off-on",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "h11-httptools",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "aa-get-fast",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "aa-get-fast",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "h11-httptools",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "accesslog-off-on",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "h11-httptools",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "aa-get-fast",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "accesslog-off-on",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "aa-get-fast",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "accesslog-off-on",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "h11-httptools",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "h11-httptools",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "aa-get-fast",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "accesslog-off-on",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "h11-httptools",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "aa-get-fast",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "accesslog-off-on",
+      "order": "ABBA"
+    }
+  ],
+  "matched_rates": {
+    "get": 400
+  },
+  "route_groups": {
+    "get": [
+      "fastapi-msgspec",
+      "fastapi-msgspec-httptools",
+      "fastapi-msgspec-accesslog"
+    ]
+  },
+  "interpretation_rules": {
+    "lower_bound": "A variant whose mean API CPU over all its main points is below 0.95 core is reported as an RPS lower bound (client or latency limited), with API CPU per response as secondary metric, unless the pair is flagged by direction_under_client_limit, where it is the primary metric; never as a server capacity ratio. Classified once per variant.",
+    "direction_under_client_limit": "Generator saturation is anchored to generator CPU in the static controls (static-pre before main, static after main; mean of all four). Static RPS is not used as a limit, because generator cost per response differs between the static Go server and uvicorn responses. If either side of a pair has mean generator CPU >= 0.9 x static generator CPU, the RPS direction of that pair is not reported as a server result; API CPU per response is then the primary metric. Generator CPU per response is reported per variant.",
+    "pair_ratio": "The pair ratio is the measured throughput ratio with 20 closed-loop clients and memoized body verification on 2 generator CPUs; not a capacity ratio. A direction may be claimed only if the nominal interval excludes 0. The same rule applies to API CPU per response (comparisons[pair].api_cpu_us_per_response, same estimator). The primary metric of each pair is fixed in advance: RPS, or API CPU per response for pairs flagged by direction_under_client_limit; the other metric is descriptive and never replaces a null primary result. When neither side is a lower bound (API at least 0.95 core on both), the CPU interval mirrors the RPS interval and is not independent evidence. analyze.py records the decision per pair: primary_metric, primary_direction_claim_allowed, rps_direction_claim_allowed, cpu_compared_at_different_loads and cpu_interval_mirrors_rps.",
+    "redis": "Redis gets 0.2 CPU and 1024 MiB on cpuset 1 (maxmemory 900mb, noeviction) as in series 3 and 7; series 8 has no view-cache variants, so Redis holds no pages. If Redis throttled time exceeds 1% of the measurement window in any point of a variant, that variant is reported as Redis-limited.",
+    "host_drift": "The host is a cloud KVM VM with 8 vCPUs in two NUMA nodes (0-3 and 4-7); exclusive physical cores are not confirmed by the provider documentation, and zero steal does not exclude cache or memory-bandwidth contention. Per-point steal and softirq shares of CPUs 0-3 are reported and a point with steal above 1% of the window is flagged. Static controls before and after main are compared by RPS, generator CPU per response and API CPU per response; a difference above 10% in RPS or generator CPU per response flags the series as host-drifted, reported with the results. The per-round values of fastapi-msgspec (both sides of aa-get-fast and one side of the other two pairs, every round) are reported as an in-series drift trace. Per-response CPU values of this series are never set next to values of other series.",
+    "equal_load": "After main and headroom, every measured variant runs two open-loop points at 400 offered RPS (GET), 30 s after a 15 s throughput warmup, order as listed then reversed. The rate follows matched-rate-rule.md: 0.7 x the minimum throughput smoke RPS of the measured variants on this server, rounded down to a multiple of 100, fixed before this protocol. API CPU per response at equal load is unpaired and reported descriptively (no interval) alongside the paired main-series value, which depends on load.",
+    "request_mix": "Every tenth request (global counter) is a unique cold page from the pool, taken sequentially from offset 0 in the warmup run and from offset 25000 in the measurement run (pool 80000) of each point; an exhausted pool is a client error. Every variant serves this mix from PostgreSQL (CACHE_MODE=bypass, VIEW_CACHE=disabled). Static controls use only the hot page.",
+    "headroom": "After main, the client 1/2/2/1 CPU sweep runs for fastapi-msgspec, plus two static controls.",
+    "path_disclosure": "All three measured variants are the same application and process configuration: MsgspecRouter without output schema (msgspec-fastapi main through bench/router-main-shim), direct asyncpg queries, uvloop, one uvicorn worker. h11-httptools changes only --http (h11 to httptools); accesslog-off-on changes only the access log (--no-access-log on side A, the uvicorn default access log on side B, so B/A is the cost of the log). The access log is written by the uvicorn.access logger to the container stdout, collected by the Docker json-file logging driver. That collection runs in the containerd shim of the API container and in dockerd on the system CPUs, outside the API cgroup: it is not included in API CPU per response and is reported separately per point (log_pipeline in analyze.py, the per-process CPU of the shim and of dockerd; dockerd also serves the runner and the sampler, so only the difference between the sides of accesslog-off-on is attributable to the access log). Unbound kernel work queues are restricted to CPUs 4-7. Python logging writes to stdout synchronously: if the pipe were ever full, the event loop would wait and RPS would fall without API CPU rising, and the lower_bound rule then reports that variant as an RPS lower bound (mean API CPU below 0.95 core). A log written to a file or a remote collector costs differently.",
+    "series8": "One stack: the API image built from Dockerfile-T (CPython 3.14.10, requirements-T.lock as in series 7 plus httptools 0.9.0, which uvicorn imports only with --http httptools), msgspec-fastapi main (commit in evidence/router-main.json) built on this server as one cp311-abi3 wheel and reached through bench/router-main-shim; PostgreSQL, Redis and Debian images by the same digests as in series 7. Three pairs; percentages of different pairs are never added or multiplied. With 3 pairs a nominal direction by chance is unlikely but possible; effects of the order of the aa-get-fast interval width are reported as uncertain."
+  },
+  "scope": "Series 8: the method of series 3 and 7 applied to two uvicorn settings of the optimized FastAPI variant (fastapi-msgspec): the HTTP protocol implementation (h11 versus httptools) and the access log (on versus off), plus the aa-get-fast noise reference. Request mix, generator, body verification, estimator and guards as in series 7.",
+  "environment": {
+    "uname": "Linux <hostname> 6.1.0-18-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.76-1 (2024-02-01) x86_64 GNU/Linux\n",
+    "lscpu": "Architecture:                       x86_64\nCPU op-mode(s):                     32-bit, 64-bit\nAddress sizes:                      40 bits physical, 57 bits virtual\nByte Order:                         Little Endian\nCPU(s):                             8\nOn-line CPU(s) list:                0-7\nVendor ID:                          GenuineIntel\nBIOS Vendor ID:                     QEMU\nModel name:                         Intel Xeon Processor (Icelake)\nBIOS Model name:                    pc-q35-4.2  CPU @ 2.0GHz\nBIOS CPU family:                    1\nCPU family:                         6\nModel:                              134\nThread(s) per core:                 1\nCore(s) per socket:                 4\nSocket(s):                          2\nStepping:                           0\nBogoMIPS:                           5586.87\nFlags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves wbnoinvd arat avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid md_clear arch_capabilities\nVirtualization:                     VT-x\nHypervisor vendor:                  KVM\nVirtualization type:                full\nL1d cache:                          256 KiB (8 instances)\nL1i cache:                          256 KiB (8 instances)\nL2 cache:                           32 MiB (8 instances)\nL3 cache:                           32 MiB (2 instances)\nNUMA node(s):                       2\nNUMA node0 CPU(s):                  0-3\nNUMA node1 CPU(s):                  4-7\nVulnerability Gather data sampling: Not affected\nVulnerability Itlb multihit:        Not affected\nVulnerability L1tf:                 Not affected\nVulnerability Mds:                  Not affected\nVulnerability Meltdown:             Not affected\nVulnerability Mmio stale data:      Vulnerable: Clear CPU buffers attempted, no microcode; SMT Host state unknown\nVulnerability Retbleed:             Not affected\nVulnerability Spec rstack overflow: Not affected\nVulnerability Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:           Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:           Mitigation; Enhanced IBRS, IBPB conditional, RSB filling, PBRSB-eIBRS Not affected\nVulnerability Srbds:                Not affected\nVulnerability Tsx async abort:      Not affected\n",
+    "os_release": "PRETTY_NAME=\"Debian GNU/Linux 12 (bookworm)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"12\"\nVERSION=\"12 (bookworm)\"\nVERSION_CODENAME=bookworm\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+    "meminfo_total": "MemTotal:       28802260 kB",
+    "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+    "allowed_cpus": {
+      "docker.service": "EffectiveCPUs=4-7\nAllowedCPUs=4-7\n",
+      "containerd.service": "EffectiveCPUs=4-7\nAllowedCPUs=4-7\n",
+      "user.slice": "EffectiveCPUs=4-7\nAllowedCPUs=4-7\n",
+      "system.slice": "EffectiveCPUs=0-7\nAllowedCPUs=\n"
+    }
+  },
+  "platform_note": "All runtime images and Go executables are amd64. msgspec is the official 0.22.0 PyPI wheel.",
+  "environment_guards": "Pinned image IDs and source bindings; own container inventory before/after each point, lifecycle Docker events during main; host isolation guard at main start and end and at post start and end (API, PostgreSQL, Redis, sampler and generator on CPUs 0-3, NUMA node 0; Docker, containerd, user sessions, init and NIC interrupts on CPUs 4-7, NUMA node 1); stack probe (interpreter, package versions, router files, HTTP protocol module and access log lines) per variant in preflight.",
+  "duration_selection": "Fixed 30/60 as in series 3 and 7; no result-dependent duration adjustment.",
+  "failure_policy": "Any load error, missing telemetry, source/image change, foreign-container event or failed guard stops campaign; no retry or outlier exclusion."
+}

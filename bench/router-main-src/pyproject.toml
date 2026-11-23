@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "msgspec-fastapi"
+version = "0.0.4"
+description = "Experimental FastAPI router that decodes request bodies and encodes responses with msgspec"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Aleksandr Tseluiko" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastapi>=0.142.2,<0.148",
+    "msgspec>=0.22.0",
+    "regexrs-py>=0.2.0,<0.3",
+]
+
+[project.urls]
+Source = "https://github.com/Siyet/msgspec-fastapi"
+Issues = "https://github.com/Siyet/msgspec-fastapi/issues"
+
+[dependency-groups]
+test = ["pytest", "httpx", "httpx2", "python-multipart", "tzdata; sys_platform == 'win32'"]
+lint = ["ruff==0.17.0", "pre-commit>=4.5,<5"]
+typing = ["mypy==2.4.1"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+msgspec_fastapi = ["*.pyi", "py.typed"]
+
+[tool.cibuildwheel]
+build = "cp3{11,12,13,14}-*"
+skip = "*-manylinux_i686 *-musllinux_i686 *-win32"
+test-requires = ["pytest", "httpx", "httpx2", "python-multipart", "tzdata; sys_platform == 'win32'"]
+test-command = "pytest {project}/tests"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "ANN"]
+# Runtime type expressions, JSON values and forwarded FastAPI options are dynamic.
+ignore = ["ANN401"]
+
+[tool.ruff.format]
+quote-style = "single"

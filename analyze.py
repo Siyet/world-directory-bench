@@ -3,9 +3,15 @@ from pathlib import Path
 R=Path(__file__).resolve().parent;E=R/'evidence'
 def read(p):return json.loads(p.read_text())
 CONTROL='fastapi-msgspec'
+T975={8:2.3646242515927844,7:2.4469118511449692}
 def estimate(values):
-    m=statistics.mean(values); margin=2.3646242515927844*statistics.stdev(values)/math.sqrt(8)
-    return {'percent':100*math.expm1(m),'nominal_95pct_t_interval':[100*math.expm1(m-margin),100*math.expm1(m+margin)],'blocks':8}
+    n=len(values);m=statistics.mean(values); margin=T975[n]*statistics.stdev(values)/math.sqrt(n)
+    return {'percent':100*math.expm1(m),'nominal_95pct_t_interval':[100*math.expm1(m-margin),100*math.expm1(m+margin)],'blocks':n}
+def leave_one_round_out(blocks,key):
+    """Change of the estimate, in percentage points, when any single round is left out."""
+    full=estimate([b[key] for b in blocks])['percent']
+    changes={b['round']:estimate([x[key] for x in blocks if x is not b])['percent']-full for b in blocks}
+    return {'max_abs_change_pp':max(map(abs,changes.values())),'by_round':changes}
 FIELDS=('user','nice','system','idle','iowait','irq','softirq','steal')
 def cpu_lines(text):
     return {l.split()[0]:dict(zip(FIELDS,map(int,l.split()[1:9]))) for l in text.splitlines() if l.startswith('cpu')}
@@ -17,6 +23,17 @@ def cpu_shares(a,z):
         out[c]={'steal':d['steal']/total,'softirq':d['softirq']/total,'busy':1-(d['idle']+d['iowait'])/total}
     return out
 STEAL_FLAG=0.01
+def log_pipeline(a,z,dt,rps):
+    # CPU of processes outside the API cgroup that carry its stdout (containerd shim, dockerd).
+    if 'procs' not in a:return None
+    out={}
+    for n in a['procs']:
+        x,y=a['procs'][n],z['procs'][n]
+        assert 'error' not in x and 'error' not in y and x['pid']==y['pid'],(n,x,y)
+        us=(y['utime_usec']+y['stime_usec'])-(x['utime_usec']+x['stime_usec'])
+        out[n]={'cpu_cores':us/1e6/dt,'cpu_us_per_response':us/dt/rps,'cpus_allowed':y['cpus_allowed']}
+    out['total_us_per_response']=sum(v['cpu_us_per_response'] for v in out.values())
+    return out
 def host_summary():
     path=E/'host-telemetry.jsonl'
     if not path.exists():return None
@@ -55,6 +72,7 @@ def main():
                 p['throttled_usec']={n:z['targets'][n]['cpu']['throttled_usec']-a['targets'][n]['cpu']['throttled_usec'] for n in a['targets']}
                 p['throttled_share_of_window']={n:v/1e6/dt for n,v in p['throttled_usec'].items()}
                 p['api_cpu_us_per_response']=cpu['api']*1e6/p['rps']
+                p['log_pipeline']=log_pipeline(a,z,dt,p['rps'])
                 if variants[side] in ('cache','cache-msgpack','pydantic-cache'):
                     c=p['cache'];k=r['in_window']['cache_by_kind']
                     assert 0.88<=c.get('hit',0)/(c.get('hit',0)+c.get('miss',0))<=0.905 and set(k.get('cold',{}))<={'miss'} and k['hot'].get('miss',0)<=60,(path.name,c,k)
@@ -63,7 +81,7 @@ def main():
                 points.append(p);block.append(p)
             blocks.append({'round':item['round'],'order':item['order'],**{name:sum((1 if p['side']=='B' else -1)*math.log(p[key]) for p in block)/2 for name,key in [('rps_log_ratio','rps'),('rss_log_ratio','rss_mib'),('cpu_log_ratio','api_cpu_us_per_response')]}})
         assert len(blocks)==8
-        out['comparisons'][pair]={'variants':variants,'rps':estimate([b['rps_log_ratio'] for b in blocks]),'rss':estimate([b['rss_log_ratio'] for b in blocks]),'api_cpu_us_per_response':estimate([b['cpu_log_ratio'] for b in blocks]),'sides':{side:{'variant':variants[side],**{key:{'geomean':statistics.geometric_mean(p[key] for p in points if p['side']==side),'median':statistics.median(p[key] for p in points if p['side']==side),'min':min(p[key] for p in points if p['side']==side),'max':max(p[key] for p in points if p['side']==side)} for key in ('rps','rss_mib')},'mean_cpu_cores':{n:statistics.mean(p['cpu_cores'][n] for p in points if p['side']==side) for n in points[0]['cpu_cores']},'mean_api_cpu_us_per_response':statistics.mean(p['api_cpu_us_per_response'] for p in points if p['side']==side),'max_throttled_share':{n:max(p['throttled_share_of_window'][n] for p in points if p['side']==side) for n in points[0]['throttled_usec']}} for side in 'AB'},'blocks':blocks,'points':points}
+        out['comparisons'][pair]={'variants':variants,'rps':estimate([b['rps_log_ratio'] for b in blocks]),'rss':estimate([b['rss_log_ratio'] for b in blocks]),'api_cpu_us_per_response':estimate([b['cpu_log_ratio'] for b in blocks]),'leave_one_round_out':{'rps':leave_one_round_out(blocks,'rps_log_ratio'),'api_cpu_us_per_response':leave_one_round_out(blocks,'cpu_log_ratio')},'sides':{side:{'variant':variants[side],**{key:{'geomean':statistics.geometric_mean(p[key] for p in points if p['side']==side),'median':statistics.median(p[key] for p in points if p['side']==side),'min':min(p[key] for p in points if p['side']==side),'max':max(p[key] for p in points if p['side']==side)} for key in ('rps','rss_mib')},'mean_cpu_cores':{n:statistics.mean(p['cpu_cores'][n] for p in points if p['side']==side) for n in points[0]['cpu_cores']},'mean_api_cpu_us_per_response':statistics.mean(p['api_cpu_us_per_response'] for p in points if p['side']==side),'mean_log_pipeline_us_per_response':statistics.mean(p['log_pipeline']['total_us_per_response'] for p in points if p['side']==side) if points[0]['log_pipeline'] else None,'max_throttled_share':{n:max(p['throttled_share_of_window'][n] for p in points if p['side']==side) for n in points[0]['throttled_usec']}} for side in 'AB'},'blocks':blocks,'points':points}
     # Static controls: generator ceiling reference (mean of static-pre-0/1 and static-0/1).
     static=[]
     for name in ('static-pre-0','static-pre-1','static-0','static-1'):
@@ -85,7 +103,7 @@ def main():
         out['host_drift']={'post_vs_pre_percent':drift,'flag':any(abs(drift[k])>10 for k in ('rps','gen_us_per_response'))}
     else:
         out['host_drift']={'post_vs_pre_percent':None,'flag':None,'reason':'static controls before and after main are both required'}
-    # In-series drift trace: fastapi-msgspec appears in six pairs in every round.
+    # In-series drift trace: fastapi-msgspec is on four sides of three pairs (both sides of aa-get-fast) in every round.
     trace={}
     for pair in out['comparisons'].values():
         for p in pair['points']:
@@ -133,7 +151,7 @@ def main():
         mm=[x for x in samples if r['measurement_start_unix']<=x['unix']<r['measurement_end_unix']]
         a,z=mm[0],mm[-1];dt=z['monotonic']-a['monotonic']
         cpu={n:(z['targets'][n]['cpu']['usage_usec']-a['targets'][n]['cpu']['usage_usec'])/1e6/dt for n in ('api','gen')}
-        eq.setdefault(raw['variant'],[]).append({'point':path.name,'goodput_rps':r['goodput_in_window_rps'],'offered_rps':r['offered_rps'],'api_cpu':cpu['api'],'api_cpu_us_per_response':cpu['api']*1e6/r['goodput_in_window_rps'],'p99_ms':r['successful_latency_ms']['p99'],'cache':r['cache'],'cpu_shares':cpu_shares(a,z)})
+        eq.setdefault(raw['variant'],[]).append({'point':path.name,'log_pipeline':log_pipeline(a,z,dt,r['goodput_in_window_rps']),'goodput_rps':r['goodput_in_window_rps'],'offered_rps':r['offered_rps'],'api_cpu':cpu['api'],'api_cpu_us_per_response':cpu['api']*1e6/r['goodput_in_window_rps'],'p99_ms':r['successful_latency_ms']['p99'],'cache':r['cache'],'cpu_shares':cpu_shares(a,z)})
     out['equal_load']=eq
     # claim_scope: the cache-vs-optimizations statement needs all three conditions.
     c=out['comparisons'].get('cache-vs-optimizations')
