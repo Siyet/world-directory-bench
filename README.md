@@ -6,15 +6,19 @@ reference-data HTTP service (countries, divisions, cities, airports) measured on
 with Pydantic models and with msgspec Structs and `MsgspecRouter`, plus other variants
 (asyncpg without the ORM, uvloop, a Redis cache, Litestar and Go).
 
-Two series are published. Series 3, run on 2026-10-14 on a cloud VM with 6 dedicated
-vCPUs (AMD EPYC-Rome, KVM, Ubuntu 24.04.5), compares the variants of the service (see
-Results). Series 8, run on 2026-11-18 on a different cloud VM, compares two uvicorn
-settings of the optimized variant: the HTTP protocol implementation and the access log
-(see Series 8). Series 4 to 7 are not published. The values of the two series are not
+Three series are published. Series 3, run on 2026-10-14 on a cloud VM with 6 vCPUs on a
+plan advertised with dedicated cores (guest-reported AMD EPYC-Rome, KVM; Ubuntu
+24.04.5), compares the variants of the service (see Results). Series 8, run on
+2026-11-18 on a different cloud VM, compares two uvicorn settings of the optimized
+variant: the HTTP protocol implementation and the access log (see Series 8). Series 10,
+run on 2026-11-24 on another cloud VM, repeats the comparisons of the msgspec-fastapi
+README with msgspec-fastapi 0.1.0 and uvicorn on httptools and uvloop (see Series 10).
+Series 4 to 7 and series 9 are not published. The values of different series are not
 comparable with each other.
 
-The top-level scripts are those of series 8. The repository as published with series 3,
-whose files match `results/source-bindings.json`, is at tag `series-3`.
+The top-level scripts are those of series 10. The repository as published with series 3,
+whose files match `results/source-bindings.json`, is at tag `series-3`, and as published
+with series 8 at tag `series-8`.
 
 ## Results (series 3)
 
@@ -141,6 +145,67 @@ before the main series, the source bindings (keys with the server prefix
 image and the record of the msgspec-fastapi build. The loaded data are the same files as
 in series 3 (`results/directory.load.json`).
 
+## Series 10: msgspec-fastapi 0.1.0 README comparisons
+
+Series 10 repeats the comparisons shown in the msgspec-fastapi README: the service with
+Pydantic models against the same service with msgspec Structs and `MsgspecRouter`, with
+the SQLAlchemy ORM and no cache. Every Python variant runs as one uvicorn worker with
+`--http httptools`, `--loop uvloop` and `--no-access-log`. The router is msgspec-fastapi
+0.1.0: the commit recorded in `results/series10/router-main.json`, with `pyproject.toml`
+prepared for the release (`bench/router-main-src.json`). FastAPI is 0.165.0. The request
+mix, the load generator, the paired design and the estimator are those of series 3 and
+8. The comment in `run.py` that describes this setup as a default
+`pip install "fastapi[standard]"` deployment applies to the HTTP protocol and the event
+loop only: the uvicorn access log is on by default and was off in this series (its cost
+was measured in series 8). The protocol text (in `run.py` and
+`results/series10/protocol.json`) mentions series 7 and 9, and `matched-rate-rule.md`
+series 9; these series measured the same comparisons on other hosts and are not
+published.
+
+| Endpoint | Change (A → B) | Requests/s, A → B | Throughput change [95% interval] | API CPU µs per response, A → B | CPU change [95% interval] |
+|---|---|---|---|---|---|
+| POST validate | Pydantic models → msgspec Structs (`MsgspecRouter`) | 1,786 → 3,000 | +68.0% [+66.0, +70.0] | 560 → 333 | -40.5% [-41.2, -39.7] |
+| GET | Pydantic models → msgspec Structs (`MsgspecRouter`) | 489 → 549 | +12.3% [+11.1, +13.4] | 2,047 → 1,823 | -10.9% [-11.9, -10.0] |
+| POST search | Pydantic models → msgspec Structs (`MsgspecRouter`) | 419 → 469 | +11.9% [+10.8, +13.0] | 2,387 → 2,133 | -10.6% [-11.5, -9.7] |
+| GET | Struct `response_model` → `response_model=None` | 545 → 546 | +0.2% [-1.1, +1.5] ¹ | 1,834 → 1,831 | -0.2% [-1.5, +1.1] ¹ |
+| GET | A/A control (same variant on both sides) | 547 → 548 | +0.1% [-0.9, +1.1] ¹ | 1,826 → 1,825 | -0.1% [-1.0, +0.9] ¹ |
+
+¹ The interval includes zero, so no difference was detected.
+
+- The API core was saturated in every run in the table (at least 0.999 CPU), so the CPU
+  change is close to the inverse of the throughput change and is not independent of it.
+- At a fixed request rate below saturation (`equal_load` in
+  `results/series10/summary.json`, two runs per variant, no interval), API CPU per
+  response was about 2,054 µs with Pydantic and 1,899 µs with msgspec on GET at 300
+  requests per second, 2,421 and 2,219 µs on search at 200, and 609 and 369 µs on
+  validate at 1,200.
+- Memory (median RSS of the API process, about 98 to 102 MiB) changed by less than 1% in
+  each comparison.
+- The rows are not additive. Versions: Python 3.14.10, FastAPI 0.165.0, Pydantic 2.14.3,
+  msgspec 0.22.0, SQLAlchemy 2.1.9, asyncpg 0.32.0, uvicorn 0.54.0, httptools 0.9.0 and
+  uvloop 0.23.0.
+
+Differences from series 3:
+
+- Host: a cloud KVM VM with 6 vCPUs in one NUMA node on a plan advertised with dedicated
+  cores, Ubuntu 24.04.5. The containers run on CPUs 0 to 3 (API on CPU 0), and Docker,
+  containerd, user sessions, unbound kernel work queues and the interrupts of the
+  default-route NIC on CPUs 4 and 5 (`isolate.sh`). Steal time on CPUs 0 to 3 stayed
+  below 0.6% of a CPU in every run used for the results.
+- Static controls after the series were 0.9% faster than before it, below the drift
+  flag (`host_drift`).
+- The Python variants run on httptools and uvloop; in series 3 they ran on h11 and, unless
+  the variant used uvloop, on asyncio (the access log was off in both). The router is
+  msgspec-fastapi 0.1.0 instead of the vendored copy.
+- The Go variant runs only as a reference: to record the pages of the cold pool and,
+  before the series, to check the GET responses of the measured variants.
+
+`results/series10` contains the analysed results (`summary.json`), the protocol written
+before the main series, the source bindings (keys with the server prefix
+`/srv/s10/campaign/`), the host environment (host name removed), the record of the API
+image and the record of the msgspec-fastapi build. The loaded data are the same files as
+in series 3 (`results/directory.load.json`).
+
 ## Data
 
 - Sources: the GeoNames `cities500` export with country and administrative codes
@@ -164,9 +229,9 @@ in series 3 (`results/directory.load.json`).
 
 ## Database access
 
-- In both series, PostgreSQL 18.6 in Docker (the same image ID), with its data directory
-  on tmpfs (in memory), limited to 0.75 CPU on a core shared only with Redis and the
-  telemetry sampler, `shared_buffers=64MB`.
+- In all three series, PostgreSQL 18.6 in Docker (the same image ID), with its data
+  directory on tmpfs (in memory), limited to 0.75 CPU on a core shared only with Redis
+  and the telemetry sampler, `shared_buffers=64MB`.
 - In series 3, in the Python variants compared in the msgspec-fastapi README, the
   database is accessed through the SQLAlchemy 2.1.3 ORM with the asyncpg 0.31.0 driver
   (`DB_BACKEND=orm`). In the `orm-asyncpg` comparison, the ORM is replaced by asyncpg
@@ -175,19 +240,20 @@ in series 3 (`results/directory.load.json`).
 
 ## Layout
 
-- `run.py`: the series 8 runner. Its stages, in order: `build`, `setup`, `cold`,
+- `run.py`: the series 10 runner. Its stages, in order: `build`, `setup`, `cold`,
   `smoke`, `protocol`, `preflight`, `static_pre`, `main`, `post`, `cleanup`. The summary
-  published as `results/series8/summary.json` is computed with `analyze.py`; the resource
+  published as `results/series10/summary.json` is computed with `analyze.py`; the resource
   use of the containers, of the log collection processes and of the host is sampled with
   `telemetry.py` and `host_telemetry.py`. `matched-rate-rule.md` is the rule that sets
   the fixed request rate for the equal-load runs, and `isolate.sh` sets the CPU isolation
-  of the host (new in series 8). The series 3 versions of the other files are at tag
-  `series-3`.
+  of the host (new in series 8). The series 3 and series 8 versions are at tags
+  `series-3` and `series-8`.
 - `bench/service/Dockerfile-T`, `bench/service/requirements-T.in` and
-  `requirements-T.lock`: the API image of series 8. `bench/router-main-src` is the
-  msgspec-fastapi source (`bench/router-main-src.json` records the commit and file
-  hashes); the `build` stage builds it into a wheel installed in `bench/router-main-site`,
-  which is mounted into the API container. `bench/router-main-shim` is a
+  `requirements-T.lock`: the API image of series 10 (series 8 used FastAPI 0.147.0; see
+  tag `series-8`). `bench/router-main-src` is the msgspec-fastapi source
+  (`bench/router-main-src.json` records the commit and file hashes); the `build` stage
+  builds it into a wheel installed in `bench/router-main-site`, which is mounted into the
+  API container. `bench/router-main-shim` is a
   `fastapi_extension_msgspec` package that takes the place of the vendored router copy
   and re-exports `msgspec_fastapi`.
 - `bench/service`: the FastAPI service. `fastapi_extension_msgspec` is the router copy
@@ -195,13 +261,14 @@ in series 3 (`results/directory.load.json`).
   The `country_code` pattern was removed before series 3, so the
   `country_code=zz` case of `test_invalid_query` in `tests/test_contract.py` fails.
 - `bench/go-service`, `bench/apps`: the Go and Litestar variants.
-- `generator`: the Go load generator used in both series (closed-loop clients, every
-  response body checked). `bench/generator-source` is an earlier version that is
+- `generator`: the Go load generator used in all three series (closed-loop clients,
+  every response body checked). `bench/generator-source` is an earlier version that is
   recorded in the series bindings too.
 - `bench/run.py`, `bench/setup.py`, `bench/analyze.py`, `bench/sample.py`: scripts of an
   earlier series, kept because the bindings cover the whole `bench` directory; they are
   not called from `run.py`. `bench/cache_control.py` is a separate check of the view
-  cache, changed after series 3 (TTL and forced expiry checks) and not run in series 8.
+  cache, changed after series 3 (TTL and forced expiry checks) and not run in series 8
+  or 10.
 - `bench/*.json`: request cases (the hot GET page, search bodies, the 100-city ingest
   body) and `body.json`, the response body of the static control server.
 - `results`: series 3: the analysed results (`summary.json`), the protocol written before
@@ -214,12 +281,14 @@ At tag `series-3`, all included files under `bench` and `generator`, the top-lev
 scripts and `matched-rate-rule.md` have the SHA-256 recorded in
 `results/source-bindings.json` (the keys carry the server prefix
 `/srv/talk/talk-srv-s3-20261014/`). The files used by series 8 have the SHA-256 recorded
-in `results/series8/source-bindings.json`, except `isolate.sh`. Of the files listed
-there, `evidence/image-T.json` and `evidence/router-main.json` are included as
-`results/series8/image-T.json` and `router-main.json`; not included are the built
-executables, the installed msgspec-fastapi and regexrs-py packages
-(`bench/router-main-site`, recorded in `results/series8/router-main.json`) and the
-generated cold pages. Files listed in the series 3 bindings but not included:
+in `results/series8/source-bindings.json`, except `isolate.sh`, and the files used by
+series 10 in `results/series10/source-bindings.json`, including `isolate.sh`. Of the files
+listed in the series 8 and 10 bindings, `evidence/image-T.json` and
+`evidence/router-main.json` are included as `image-T.json` and `router-main.json` in
+`results/series8` and `results/series10`; not included are the built executables, the
+installed msgspec-fastapi and regexrs-py packages (`bench/router-main-site`, recorded in
+`router-main.json`) and the generated cold pages. Files listed in the series 3 bindings
+but not included:
 
 - `bench/site`, the packages added to `PYTHONPATH` in addition to
   `bench/service/requirements.lock`: litestar 2.24.0, litestar-htmx 0.5.0, polyfactory
@@ -251,7 +320,7 @@ round.
 ## Reproducing
 
 The scripts were written for the hosts described above; running them elsewhere requires
-changes. For series 8 (the top-level scripts):
+changes. For series 10 (the top-level scripts):
 
 - In `run.py`, PostgreSQL 18.6, Redis 7.4.11 and Debian 12 slim are given as image IDs
   of Docker Engine with the containerd image store, and the API image is built by the
@@ -259,14 +328,14 @@ changes. For series 8 (the top-level scripts):
   the IDs if they differ.
 - In `run.py`, the containers are pinned to CPUs 0 to 3 (API 0; PostgreSQL, Redis and
   the sampler 1; generator 2 and 3). At the start and end of the `main` and `post`
-  stages, the run stops unless NUMA node 0 is CPUs 0 to 3, the runner process, Docker,
-  containerd, user sessions and `init.scope` are limited to CPUs 4 to 7, no user-space
-  process outside the containers is allowed on CPUs 0 to 3, the listed systemd timers
-  are stopped, the unbound kernel work queues and the `virtio0` NIC interrupts are on CPUs
-  4 to 7 and no NIC interrupt was handled on CPUs 0 to 3. `isolate.sh`, run after each
-  boot, sets up the CPU limits, timers, work queues and interrupts. The normalized data
-  are read from `data/normalized` or the path in `WDB_DATA`, and the built executables
-  are run.
+  stages, the run stops unless CPUs 0 to 3 are in one NUMA node, the runner process,
+  Docker, containerd, user sessions and `init.scope` are limited to CPUs 4 and 5, no
+  user-space process outside the containers is allowed on CPUs 0 to 3, the listed
+  systemd timers are stopped, the unbound kernel work queues and the interrupts of the
+  default-route virtio NIC are on CPUs 4 and 5 and no such interrupt was handled on CPUs
+  0 to 3. `isolate.sh`, run after each boot, sets up the CPU limits, timers, work queues
+  and interrupts. The normalized data are read from `data/normalized` or the path in
+  `WDB_DATA`, and the built executables are run.
 - The raw per-run measurements used as input to `analyze.py` are not included, so
-  `results/summary.json` and `results/series8/summary.json` cannot be recomputed from
-  this repository alone.
+  `results/summary.json`, `results/series8/summary.json` and
+  `results/series10/summary.json` cannot be recomputed from this repository alone.

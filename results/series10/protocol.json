@@ -1,0 +1,305 @@
+{
+  "pairs": {
+    "readme-ingest": {
+      "A": "pydantic-ingest",
+      "B": "msgspec-schema-ingest"
+    },
+    "readme-get": {
+      "A": "pydantic",
+      "B": "msgspec-schema"
+    },
+    "readme-search": {
+      "A": "pydantic-post",
+      "B": "msgspec-schema-post"
+    },
+    "readme-schema-none": {
+      "A": "msgspec-schema",
+      "B": "msgspec-none-orm"
+    },
+    "aa-get": {
+      "A": "msgspec-schema",
+      "B": "msgspec-schema"
+    }
+  },
+  "random_seed": 202611241800,
+  "warmup_seconds": 30,
+  "measurement_seconds": 60,
+  "blocks_per_pair": 8,
+  "points": 160,
+  "hashseeds": [
+    2100,
+    2101,
+    2102,
+    2103,
+    2104,
+    2105,
+    2106,
+    2107
+  ],
+  "concurrency": 20,
+  "cold_every": 10,
+  "cold_pool": 80000,
+  "cold_offsets": {
+    "warmup": 0,
+    "measurement": 25000
+  },
+  "redis_cpu": 0.2,
+  "redis_memory_mib": 1024,
+  "api_cpu": 1,
+  "generator_cpu": 2,
+  "pg_cpu": 0.75,
+  "schedule": [
+    {
+      "round": 0,
+      "pair": "readme-schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "readme-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "readme-ingest",
+      "order": "BAAB"
+    },
+    {
+      "round": 0,
+      "pair": "readme-search",
+      "order": "ABBA"
+    },
+    {
+      "round": 0,
+      "pair": "aa-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "readme-ingest",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "aa-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 1,
+      "pair": "readme-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "readme-search",
+      "order": "BAAB"
+    },
+    {
+      "round": 1,
+      "pair": "readme-schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "readme-ingest",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "readme-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "readme-schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 2,
+      "pair": "aa-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 2,
+      "pair": "readme-search",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "readme-ingest",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "readme-schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "readme-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 3,
+      "pair": "readme-search",
+      "order": "BAAB"
+    },
+    {
+      "round": 3,
+      "pair": "aa-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "readme-schema-none",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "readme-ingest",
+      "order": "ABBA"
+    },
+    {
+      "round": 4,
+      "pair": "readme-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "aa-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 4,
+      "pair": "readme-search",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "readme-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "aa-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 5,
+      "pair": "readme-search",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "readme-schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 5,
+      "pair": "readme-ingest",
+      "order": "BAAB"
+    },
+    {
+      "round": 6,
+      "pair": "readme-ingest",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "readme-schema-none",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "readme-search",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "aa-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 6,
+      "pair": "readme-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "readme-get",
+      "order": "BAAB"
+    },
+    {
+      "round": 7,
+      "pair": "aa-get",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "readme-ingest",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "readme-search",
+      "order": "ABBA"
+    },
+    {
+      "round": 7,
+      "pair": "readme-schema-none",
+      "order": "BAAB"
+    }
+  ],
+  "matched_rates": {
+    "get": 300,
+    "post": 200,
+    "ingest": 1200
+  },
+  "route_groups": {
+    "get": [
+      "pydantic",
+      "msgspec-schema",
+      "msgspec-none-orm"
+    ],
+    "post": [
+      "pydantic-post",
+      "msgspec-schema-post"
+    ],
+    "ingest": [
+      "pydantic-ingest",
+      "msgspec-schema-ingest"
+    ]
+  },
+  "interpretation_rules": {
+    "lower_bound": "A variant whose mean API CPU over all its main points is below 0.95 core is reported as an RPS lower bound (client or latency limited), with API CPU per response as secondary metric, unless the pair is flagged by direction_under_client_limit, where it is the primary metric; never as a server capacity ratio. Classified once per variant.",
+    "direction_under_client_limit": "Generator saturation is anchored to generator CPU in the static controls (static-pre before main, static after main; mean of all four). Static RPS is not used as a limit, because generator cost per response differs between the static Go server and uvicorn responses. If either side of a pair has mean generator CPU >= 0.9 x static generator CPU, the RPS direction of that pair is not reported as a server result; API CPU per response is then the primary metric. Generator CPU per response is reported per variant.",
+    "pair_ratio": "The pair ratio is the measured throughput ratio with 20 closed-loop clients and memoized body verification on 2 generator CPUs; not a capacity ratio. A direction may be claimed only if the nominal interval excludes 0. The same rule applies to API CPU per response (comparisons[pair].api_cpu_us_per_response, same estimator). The primary metric of each pair is fixed in advance: RPS, or API CPU per response for pairs flagged by direction_under_client_limit; the other metric is descriptive and never replaces a null primary result. When neither side is a lower bound (API at least 0.95 core on both), the CPU interval mirrors the RPS interval and is not independent evidence. analyze.py records the decision per pair: primary_metric, primary_direction_claim_allowed, rps_direction_claim_allowed, cpu_compared_at_different_loads and cpu_interval_mirrors_rps.",
+    "redis": "Redis gets 0.2 CPU and 1024 MiB on cpuset 1 (maxmemory 900mb, noeviction) as in series 3 and 7; series 10 has no view-cache variants, so Redis holds no pages. If Redis throttled time exceeds 1% of the measurement window in any point of a variant, that variant is reported as Redis-limited.",
+    "host_drift": "The host is a cloud KVM VM with 6 vCPUs on a plan advertised as dedicated cores; exclusivity of physical cores is not verifiable from the guest, and the guest-reported CPU model (QEMU/KVM named model) is not evidence of the physical part. Zero steal does not exclude cache or memory-bandwidth contention. Per-point steal and softirq shares of CPUs 0-3 are reported and a point with steal above 1% of the window is flagged. Static controls before and after main are compared by RPS, generator CPU per response and API CPU per response; a difference above 10% in RPS or generator CPU per response flags the series as host-drifted, reported with the results. The per-round values of msgspec-schema (both sides of aa-get, side B of readme-get and side A of readme-schema-none, every round) are reported as an in-series drift trace, and the change of each estimate when any single round is left out is reported. Per-response CPU values of this series are never set next to values of other series.",
+    "equal_load": "After main and headroom, every measured variant runs two open-loop points at the offered RPS of its route group (MATCHED_RATES: get, post, ingest), 30 s after a 15 s throughput warmup, order below. The rates follow matched-rate-rule.md: per group, 0.7 x the minimum throughput smoke RPS of its measured variants on this server, rounded down to a multiple of 100, fixed before this protocol. Order: route groups get, post, ingest; within each group variants as listed in the first repetition and reversed in the second. API CPU per response at equal load is unpaired and reported descriptively (no interval) alongside the paired main-series value, which depends on load.",
+    "request_mix": "GET: every tenth request (global counter) is a unique cold page from the pool, taken sequentially from offset 0 in the warmup run and from offset 25000 in the measurement run (pool 80000) of each point; an exhausted pool is a client error; the other requests go to the hot page. POST search: the bodies of bench/post-cases.json in rotation. Ingest: the 100-city body of bench/ingest-cases.json. GET and POST search variants read PostgreSQL on every request (CACHE_MODE=bypass, VIEW_CACHE=disabled); ingest variants do not touch the database. Static controls use only the hot page.",
+    "headroom": "After main, the client 1/2/2/1 CPU sweep runs for msgspec-schema (GET) and msgspec-schema-ingest (23 KB request bodies), plus two static controls. 2 client CPUs is the maximum of the generator cpuset, so the sweep cannot show a limit at 2 CPUs; it can only rule one out. Per variant, analyze.py reports mean RPS at 1 and 2 client CPUs and mean API and generator CPU at 2. generator_not_limiting_at_2_cpus is true only if all four points exist, mean RPS at 1 CPU is at least 0.95 x mean RPS at 2 CPUs and mean generator CPU at 2 CPUs is below 1.8; otherwise null, with the reason. It concerns generator CPU only: true does not exclude a limit from the 20 closed-loop connections. Descriptive only; lower_bound and direction_under_client_limit stay the deciding rules.",
+    "log_pipeline": "CPU of the API container containerd shim and of the whole dockerd daemon per API response is reported descriptively only (mean_log_pipeline_us_per_response). dockerd time includes daemon-wide harness activity (the telemetry sampler json-file logging, the generator docker exec session, the docker events subscription during main); with the access log off the API container is expected to write no output (checked in preflight only, not per point). Values come from 10 ms process ticks, so small per-response values are quantization noise.",
+    "post": "POST search pairs use the GET configurations with the search body as input; the response contract (Page[City] JSON body) is the same on both sides. Their search bodies are small (123-394 bytes as sent, compact, from bench/post-cases.json), so the share of input decoding is not identifiable from them: they also change the output validation and serialization path (in readme-search: Pydantic response_model versus msgspec typed output), the SQL differs from GET, and the BodyLimits per-byte Python scan of every search body is expected to cost more than the decoding itself (a series 3 code note, not measured in this series). The input contract is isolated by readme-ingest: a 23 KB batch decoded and validated by Pydantic through FastAPI (json.loads, then validation) or by the msgspec router (msgspec Decoder, then a UTF-8 check of a body with non-ASCII bytes, as in msgspec-fastapi 0.1.0), no database, a constant small response; the BodyLimits per-byte scan is skipped on that route only (size, media type and UTF-8 checks remain), so NaN or duplicate keys in an invalid batch may be classified differently by the two paths; preflight compares valid and selected invalid batches. The difference between POST and GET API CPU per response of the same variant is reported descriptively (same series), never as a sum or difference of pair percentages.",
+    "path_disclosure": "pydantic: FastAPI with Pydantic response_model and SQLAlchemy ORM; msgspec-schema: MsgspecRouter (msgspec-fastapi main through bench/router-main-shim) with a msgspec Struct response_model and SQLAlchemy ORM; msgspec-none-orm: the same without output schema. POST variants: the same app; Pydantic parses the body through FastAPI (json.loads, then validation), the msgspec router decodes the raw body with a msgspec Decoder and, for a body with non-ASCII bytes, also checks it as UTF-8 (msgspec-fastapi 0.1.0); BodyLimits middleware scans every POST search body in both, and is skipped on /cities/validate only. Every variant runs one uvicorn worker with --http httptools, --loop uvloop and --no-access-log; the mapped httptools and uvloop modules are checked at every point.",
+    "series10": "Series 9 repeated on a new server with the msgspec-fastapi 0.1.0 code; the harness is as in series 9 except names, port, seed, matched rates and the FastAPI version, besides the router source and its descriptions. One stack: the API image built from Dockerfile-T (CPython 3.14.10, requirements-T.lock of series 8 and 9, with FastAPI 0.165.0 instead of 0.147.0, the newest release supported by msgspec-fastapi 0.1.0 at measurement time), msgspec-fastapi main with the pyproject prepared for 0.1.0 (commit in evidence/router-main.json) built on this server as one cp311-abi3 wheel and reached through bench/router-main-shim; PostgreSQL, Redis and Debian images by the same digests as in series 7 and 8. Five pairs; percentages of different pairs are never added or multiplied. Series 7 (h11 and asyncio) and series 9 (msgspec-fastapi before 0.1.0) measured the same readme pairs on other hosts; no series is combined with this one into a change, because the host differs. With 5 pairs a nominal direction by chance is unlikely but possible; effects of the order of the aa-get interval width are reported as uncertain."
+  },
+  "scope": "Series 10: the msgspec-fastapi README comparisons (Pydantic models versus MsgspecRouter with msgspec Structs on POST /cities/validate, GET /cities and POST /cities/search, and response_model=None with MsgspecRouter) served by uvicorn with httptools and uvloop, plus the aa-get noise reference. Request mix, generator, body verification, estimator and guards as in series 7, 8 and 9.",
+  "environment": {
+    "uname": "Linux <hostname> 6.8.0-151-generic #151-Ubuntu SMP PREEMPT_DYNAMIC Wed Nov 11 01:28:36 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux\n",
+    "lscpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           40 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  6\nOn-line CPU(s) list:                     0-5\nVendor ID:                               AuthenticAMD\nBIOS Vendor ID:                          QEMU\nModel name:                              AMD EPYC-Rome Processor\nBIOS Model name:                         pc-i440fx-bionic  CPU @ 2.0GHz\nBIOS CPU family:                         1\nCPU family:                              23\nModel:                                   49\nThread(s) per core:                      1\nCore(s) per socket:                      6\nSocket(s):                               1\nStepping:                                0\nBogoMIPS:                                8983.08\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw perfctr_core ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 clzero xsaveerptr wbnoinvd arat umip rdpid\nHypervisor vendor:                       KVM\nVirtualization type:                     full\nL1d cache:                               384 KiB (6 instances)\nL1i cache:                               384 KiB (6 instances)\nL2 cache:                                3 MiB (6 instances)\nL3 cache:                                96 MiB (6 instances)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-5\nVulnerability Gather data sampling:      Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; untrained return thunk; SMT disabled\nVulnerability Spec rstack overflow:      Vulnerable: Safe RET, no microcode\nVulnerability Spec store bypass:         Vulnerable\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected\n",
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+    "meminfo_total": "MemTotal:        8130352 kB",
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "allowed_cpus": {
+      "docker.service": "EffectiveCPUs=4-5\nAllowedCPUs=4-5\n",
+      "containerd.service": "EffectiveCPUs=4-5\nAllowedCPUs=4-5\n",
+      "user.slice": "EffectiveCPUs=4-5\nAllowedCPUs=4-5\n",
+      "system.slice": "EffectiveCPUs=0-5\nAllowedCPUs=\n"
+    }
+  },
+  "platform_note": "All runtime images and Go executables are amd64. msgspec is the official 0.22.0 PyPI wheel.",
+  "environment_guards": "Pinned image IDs and source bindings; own container inventory before/after each point, lifecycle Docker events during main; host isolation guard at main start and end and at post start and end (API, PostgreSQL, Redis, sampler and generator on CPUs 0-3; Docker, containerd, user sessions, init, unbound kernel work queues and the interrupts of the default-route virtio NIC on CPUs 4-5; other interrupts, including disk queues, are moved to CPUs 4-5 where the kernel allows, but not checked); stack probe (interpreter, package versions, router files, HTTP protocol and loop modules, no access log lines) per variant in preflight.",
+  "duration_selection": "Fixed 30/60 as in series 3, 7, 8 and 9; no result-dependent duration adjustment.",
+  "failure_policy": "Any load error, missing telemetry, source/image change, foreign-container event or failed guard stops campaign; no retry or outlier exclusion."
+}

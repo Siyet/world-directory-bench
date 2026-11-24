@@ -2,7 +2,7 @@ import json,math,statistics
 from pathlib import Path
 R=Path(__file__).resolve().parent;E=R/'evidence'
 def read(p):return json.loads(p.read_text())
-CONTROL='fastapi-msgspec'
+CONTROL='msgspec-schema'
 T975={8:2.3646242515927844,7:2.4469118511449692}
 def estimate(values):
     n=len(values);m=statistics.mean(values); margin=T975[n]*statistics.stdev(values)/math.sqrt(n)
@@ -103,7 +103,7 @@ def main():
         out['host_drift']={'post_vs_pre_percent':drift,'flag':any(abs(drift[k])>10 for k in ('rps','gen_us_per_response'))}
     else:
         out['host_drift']={'post_vs_pre_percent':None,'flag':None,'reason':'static controls before and after main are both required'}
-    # In-series drift trace: fastapi-msgspec is on four sides of three pairs (both sides of aa-get-fast) in every round.
+    # In-series drift trace: msgspec-schema is on four sides of three pairs (both sides of aa-get) in every round.
     trace={}
     for pair in out['comparisons'].values():
         for p in pair['points']:
@@ -153,6 +153,28 @@ def main():
         cpu={n:(z['targets'][n]['cpu']['usage_usec']-a['targets'][n]['cpu']['usage_usec'])/1e6/dt for n in ('api','gen')}
         eq.setdefault(raw['variant'],[]).append({'point':path.name,'log_pipeline':log_pipeline(a,z,dt,r['goodput_in_window_rps']),'goodput_rps':r['goodput_in_window_rps'],'offered_rps':r['offered_rps'],'api_cpu':cpu['api'],'api_cpu_us_per_response':cpu['api']*1e6/r['goodput_in_window_rps'],'p99_ms':r['successful_latency_ms']['p99'],'cache':r['cache'],'cpu_shares':cpu_shares(a,z)})
     out['equal_load']=eq
+    # Client headroom sweep (descriptive; protocol rule 'headroom').
+    hr={}
+    for path in sorted(E.glob('headroom-*')):
+        if not (path/'result.json').exists():continue
+        raw=read(path/'result.json');r=raw['result'];procs=int(path.name.rsplit('client',1)[1])
+        samples=[json.loads(line) for line in (path/'telemetry.jsonl').read_text().splitlines()]
+        mm=[x for x in samples if r['measurement_start_unix']<=x['unix']<r['measurement_end_unix']]
+        a,z=mm[0],mm[-1];dt=z['monotonic']-a['monotonic']
+        cpu={n:(z['targets'][n]['cpu']['usage_usec']-a['targets'][n]['cpu']['usage_usec'])/1e6/dt for n in ('api','gen')}
+        hr.setdefault(raw['variant'],[]).append({'point':path.name,'client_cpus':procs,'rps':r['goodput_rps'],'api_cpu':cpu['api'],'gen_cpu':cpu['gen']})
+    for v,rows in hr.items():
+        m={c:statistics.mean(x['rps'] for x in rows if x['client_cpus']==c) for c in (1,2) if any(x['client_cpus']==c for x in rows)}
+        api2=[x['api_cpu'] for x in rows if x['client_cpus']==2];gen2=[x['gen_cpu'] for x in rows if x['client_cpus']==2]
+        counts={c:sum(x['client_cpus']==c for x in rows) for c in (1,2)}
+        if counts!={1:2,2:2}:reason=f'incomplete sweep {counts}'
+        elif m[1]<0.95*m[2]:reason='RPS at 1 CPU below 0.95 x RPS at 2 CPUs'
+        elif statistics.mean(gen2)>=1.8:reason='generator CPU at 2 CPUs not below 1.8'
+        else:reason=None
+        hr[v]={'points':rows,'point_counts':counts,'mean_rps_by_client_cpus':m,'mean_api_cpu_at_2':statistics.mean(api2) if api2 else None,
+               'mean_gen_cpu_at_2':statistics.mean(gen2) if gen2 else None,
+               'generator_not_limiting_at_2_cpus':True if reason is None else None,'reason':reason}
+    out['headroom']=hr
     # claim_scope: the cache-vs-optimizations statement needs all three conditions.
     c=out['comparisons'].get('cache-vs-optimizations')
     if c:

@@ -4,9 +4,9 @@ from pathlib import Path
 R = Path(__file__).resolve().parent
 F = R/'bench'
 E = R/'evidence'
-API='msgspec-talk-s8-api'; GEN='msgspec-talk-s8-gen'
-PG='msgspec-talk-s8-pg'; REDIS='msgspec-talk-s8-redis'
-NET='msgspec-talk-s8'; SAMPLE='msgspec-talk-s8-sample'; PORT=18280
+API='msgspec-talk-s10-api'; GEN='msgspec-talk-s10-gen'
+PG='msgspec-talk-s10-pg'; REDIS='msgspec-talk-s10-redis'
+NET='msgspec-talk-s10'; SAMPLE='msgspec-talk-s10-sample'; PORT=18300
 # As in series 7: 20 closed-loop clients; GET traffic mixes one hot page with a unique cold page on
 # every tenth request; the view cache is disabled for every variant.
 WORKERS=20; COLD_EVERY=10
@@ -38,7 +38,7 @@ def setup():
     save(E/'existing-containers.json',names)
     cmd('docker','network','create',NET)
     cmd('docker','run','-d','--name',PG,'--network',NET,'--network-alias','postgres','--cpus','.75','--cpuset-cpus','1','--memory','1200m','--tmpfs','/var/lib/postgresql:size=900m','-e','POSTGRES_USER=directory','-e','POSTGRES_PASSWORD=directory-local','-e','POSTGRES_DB=directory',POSTGRES,'postgres','-c','max_connections=40','-c','shared_buffers=64MB','-c','max_wal_size=256MB')
-    # Redis as in series 3 (no eviction, a full Redis fails loudly); series 8 stores no pages in it.
+    # Redis as in series 3 (no eviction, a full Redis fails loudly); series 10 stores no pages in it.
     cmd('docker','run','-d','--name',REDIS,'--network',NET,'--network-alias','redis','--cpus','.2','--cpuset-cpus','1','--memory','1024m',REDIS_IMAGE,'redis-server','--save','','--appendonly','no','--maxmemory','900mb','--maxmemory-policy','noeviction')
     for _ in range(100):
         p=subprocess.run(['docker','exec',PG,'pg_isready','-h','127.0.0.1','-U','directory','-d','directory'],capture_output=True)
@@ -48,7 +48,7 @@ def setup():
     # Normalized data from data/prepare.py; its checksums are recorded in evidence/directory.load.json.
     data=Path(os.environ.get('WDB_DATA',str(R/'data'/'normalized')))
     for module,args in [('directory.init_db',[]),('directory.load',['/data']),('directory.db_size',[])]:
-        result=cmd('docker','run','--rm','--name','msgspec-talk-s8-seed','--network',NET,'--cpus','1','--memory','512m','-v',str(F)+':/work:ro','-v',str(data)+':/data:ro','-e','PYTHONPATH=/work/service','-e','PYTHONDONTWRITEBYTECODE=1','-e','DATABASE_URL=postgresql+asyncpg://directory:directory-local@postgres/directory','-w','/work/service','--entrypoint','python',image_t(),'-m',module,*args)
+        result=cmd('docker','run','--rm','--name','msgspec-talk-s10-seed','--network',NET,'--cpus','1','--memory','512m','-v',str(F)+':/work:ro','-v',str(data)+':/data:ro','-e','PYTHONPATH=/work/service','-e','PYTHONDONTWRITEBYTECODE=1','-e','DATABASE_URL=postgresql+asyncpg://directory:directory-local@postgres/directory','-w','/work/service','--entrypoint','python',image_t(),'-m',module,*args)
         (E/(module+'.json')).write_text(result)
     cmd('docker','run','-d','--name',GEN,'--network',NET,'--cpus','2','--cpuset-cpus','2,3','--memory','512m','-v',str(F)+':/work:ro','-v',str(R)+':/control:ro','--entrypoint','sleep',DEBIAN,'infinity')
     print('setup complete',flush=True)
@@ -57,19 +57,22 @@ def request(path):
     with urllib.request.urlopen(f'http://127.0.0.1:{PORT}'+path,timeout=8) as r:
         return r.status,json.loads(r.read())
 
-# Series 8: one configuration (fastapi-msgspec: MsgspecRouter without output schema, asyncpg, uvloop,
-# msgspec-fastapi main through bench/router-main-shim) served by uvicorn with h11 or httptools and
-# with the access log off or on. pydantic (FastAPI with Pydantic response_model, SQLAlchemy ORM, asyncio)
-# and go are not measured; they record the cold pool with two independent implementations and are
-# compared in preflight.
-OPT=dict(path='msgspec',output='none',db='asyncpg',loop='uvloop')
-VARIANTS={
-'fastapi-msgspec':dict(OPT,app='diagnostic_app:app',codec='json',http='h11',access_log=False),
-'fastapi-msgspec-httptools':dict(OPT,app='diagnostic_app:app',codec='json',http='httptools',access_log=False),
-'fastapi-msgspec-accesslog':dict(OPT,app='diagnostic_app:app',codec='json',http='h11',access_log=True),
-'pydantic':dict(path='explicit',app='diagnostic_app:app',codec='json',http='h11',access_log=False),
-'go':dict(),
+# Series 10 (series 9 repeated with msgspec-fastapi 0.1.0): the msgspec-fastapi README comparisons (FastAPI with Pydantic models versus MsgspecRouter
+# with msgspec Structs; SQLAlchemy ORM; msgspec-fastapi main through bench/router-main-shim) served as
+# by a default `pip install "fastapi[standard]"` deployment: uvicorn with httptools and uvloop (the
+# protocol and loop that uvicorn's "auto" settings select when they are installed), one worker, no
+# access log (as in series 3 and 7). go is not measured; it records the cold pool together with
+# pydantic and is compared in preflight.
+TYPICAL=dict(http='httptools',loop='uvloop',access_log=False)
+CONFIGS={
+'pydantic':dict(TYPICAL,path='explicit',app='diagnostic_app:app',codec='json'),
+'msgspec-schema':dict(TYPICAL,path='msgspec',app='diagnostic_app:app',codec='json'),
+'msgspec-none-orm':dict(TYPICAL,path='msgspec',output='none',app='diagnostic_app:app',codec='json'),
 }
+for _name in ('pydantic','msgspec-schema'):
+    CONFIGS[_name+'-post']=dict(CONFIGS[_name],cases='post')
+    CONFIGS[_name+'-ingest']=dict(CONFIGS[_name],cases='ingest')
+VARIANTS=dict(CONFIGS,go=dict())
 SHIM='/work/router-main-shim:/work/router-main-site:'
 # uvicorn puts --app-dir first on sys.path; the shim makes the service import msgspec-fastapi main.
 APP_DIR='/work/router-main-shim'
@@ -78,8 +81,9 @@ ROUTER_SO='/work/router-main-site/msgspec_fastapi/_defaults.abi3.so'
 def check_live_router(variant):
     maps=cmd('docker','exec',API,'cat','/proc/1/maps')
     assert ROUTER_SO in maps,variant
-    # httptools is imported only by the httptools protocol (uvicorn --http httptools).
+    # httptools and uvloop are mapped only when uvicorn uses them (--http httptools, --loop uvloop).
     assert ('/httptools/' in maps)==(VARIANTS[variant]['http']=='httptools'),variant
+    assert ('/uvloop/' in maps)==(VARIANTS[variant]['loop']=='uvloop'),variant
 PYTHONPATH=SHIM+'/work/service:/work/apps'
 def uvicorn_args(x):
     return ['--host','0.0.0.0','--port','8000','--workers','1','--loop',x.get('loop','asyncio'),'--http',x['http']]+([] if x['access_log'] else ['--no-access-log'])+['--app-dir',APP_DIR]
@@ -250,26 +254,36 @@ def run_main_points():
 
 
 
-TIMERS=('apt-daily.timer','apt-daily-upgrade.timer','dpkg-db-backup.timer','man-db.timer','e2scrub_all.timer','fstrim.timer','systemd-tmpfiles-clean.timer','sysstat-collect.timer','sysstat-summary.timer')
-SYSTEM_CPUS={4,5,6,7}
-def nic_counts_on_bench_cpus(interrupts):
+TIMERS=('apt-daily.timer','apt-daily-upgrade.timer','fwupd-refresh.timer','motd-news.timer','update-notifier-download.timer','man-db.timer','fstrim.timer','dpkg-db-backup.timer','e2scrub_all.timer','systemd-tmpfiles-clean.timer','sysstat-collect.timer','sysstat-summary.timer','logrotate.timer','ua-timer.timer','update-notifier-motd.timer','apport-autoreport.timer','snapd.snap-repair.timer','xfs_scrub_all.timer')
+SYSTEM_CPUS={4,5}
+def nic_prefix():
+    # IRQ name prefix of the virtio device behind the default-route interface (virtio0 may be the disk).
+    defaults=sorted({l.split()[0] for l in Path('/proc/net/route').read_text().splitlines()[1:] if l.split()[1]=='00000000' and l.split()[7]=='00000000'})
+    assert len(defaults)==1,('expected one IPv4 default route interface',defaults)
+    iface=defaults[0];dev=Path(f'/sys/class/net/{iface}/device').resolve().name
+    assert dev.startswith('virtio'),('default route interface is not a virtio device',iface,dev)
+    return dev+'-'
+def nic_counts_on_bench_cpus(interrupts,prefix):
     lines=interrupts.splitlines();cpus=lines[0].split()
-    return {l.split(':')[0].strip():sum(int(x) for c,x in zip(cpus,l.split(':',1)[1].split()) if int(c[3:])<4) for l in lines[1:] if 'virtio0-' in l}
+    return {l.split(':')[0].strip():sum(int(x) for c,x in zip(cpus,l.split(':',1)[1].split()) if int(c[3:])<4) for l in lines[1:] if prefix in l}
 def cpu_list(text):
     out=set()
     for part in filter(None,text.split(',')):
         a,_,b=part.partition('-');out|=set(range(int(a),int(b or a)+1))
     return out
 def host_guard(tag):
-    """Snapshot processes, interrupts and units, then assert the runtime isolation of CPUs 0-3 (NUMA node 0)."""
-    assert [Path(f'/sys/devices/system/node/node{n}/cpulist').read_text().strip() for n in (0,1)]==['0-3','4-7']
-    assert Path('/sys/devices/virtual/workqueue/cpumask').read_text().strip()=='f0'
+    """Snapshot processes, interrupts and units, then assert the runtime isolation of CPUs 0-3."""
+    numa_ok=any({0,1,2,3}<=cpu_list(q.read_text().strip()) for q in Path('/sys/devices/system/node').glob('node*/cpulist'))
+    try:wq=Path('/sys/devices/virtual/workqueue/cpumask').read_text().strip()
+    except OSError as e:wq=repr(e)
     irqs={};irq_masks={}
     for d in Path('/proc/irq').iterdir():
         if d.is_dir() and (d/'effective_affinity_list').exists():irqs[d.name]=(d/'effective_affinity_list').read_text().strip()
         if d.is_dir() and (d/'smp_affinity_list').exists():irq_masks[d.name]=(d/'smp_affinity_list').read_text().strip()
     interrupts=Path('/proc/interrupts').read_text()
-    nic=[line.split(':')[0].strip() for line in interrupts.splitlines() if 'virtio0-' in line]
+    try:prefix,nic_error=nic_prefix(),None
+    except (AssertionError,OSError,IndexError) as e:prefix,nic_error=None,repr(e)
+    nic=[line.split(':')[0].strip() for line in interrupts.splitlines() if prefix in line] if prefix else []
     units={u:cmd('systemctl','show','-p','AllowedCPUs',u,check=False).strip() for u in ('docker.service','containerd.service','user.slice','init.scope')}
     timers={t:cmd('systemctl','is-active',t,check=False).strip() for t in TIMERS}
     procs=[]
@@ -282,21 +296,30 @@ def host_guard(tag):
         except (OSError,IndexError,ValueError):continue
         if status.get('PPid','').strip()=='2' or d.name=='2':continue
         procs.append({'pid':int(d.name),'comm':status.get('Name','').strip(),'cpus':status.get('Cpus_allowed_list','').strip(),'cgroup':cg,'start_ticks_since_boot':started})
-    loose=[x for x in procs if 'docker-' not in x['cgroup'] and x['cpus']!='4-7']
-    snapshot={'tag':tag,'unix':time.time(),'uptime':Path('/proc/uptime').read_text().split()[0],'affinity':sorted(os.sched_getaffinity(0)),'units':units,'timers':timers,'irq_effective_affinity':irqs,'irq_smp_affinity':irq_masks,'interrupts':interrupts,'processes':procs,'outside_system_cpus_non_container':loose}
+    loose=[x for x in procs if 'docker-' not in x['cgroup'] and x['cpus']!='4-5']
+    snapshot={'tag':tag,'unix':time.time(),'uptime':Path('/proc/uptime').read_text().split()[0],'affinity':sorted(os.sched_getaffinity(0)),'units':units,'timers':timers,'numa_cpus_0_3_one_node':numa_ok,'workqueue_cpumask':wq,'nic_irq_prefix':prefix,'nic_error':nic_error,'irq_effective_affinity':irqs,'irq_smp_affinity':irq_masks,'interrupts':interrupts,'processes':procs,'outside_system_cpus_non_container':loose}
     save(E/f'host-guard-{tag}.json',snapshot)
     failures=[]
-    if not os.sched_getaffinity(0)<=SYSTEM_CPUS:failures.append('runner not on CPUs 4-7')
-    failures+=[f'{u} {v}' for u,v in units.items() if v!='AllowedCPUs=4-7']
+    if not numa_ok:failures.append('CPUs 0-3 are not in one NUMA node')
+    try:wq_ok=int(wq.replace(',',''),16)==0x30
+    except ValueError:wq_ok=False
+    if not wq_ok:failures.append(f'workqueue cpumask {wq!r}')
+    if nic_error:failures.append(f'NIC detection {nic_error}')
+    if not os.sched_getaffinity(0)<=SYSTEM_CPUS:failures.append('runner not on CPUs 4-5')
+    failures+=[f'{u} {v}' for u,v in units.items() if v!='AllowedCPUs=4-5']
     failures+=[f'{t} {v}' for t,v in timers.items() if v!='inactive']
     # A queue without traffic keeps its old effective CPU until its next interrupt: the mask is asserted
     # at every tag, the effective CPU at the start tags, and the interrupts actually handled on CPUs 0-3
     # are compared at the end tags.
-    if not nic or any(not cpu_list(irq_masks.get(n,'')) or not cpu_list(irq_masks.get(n,''))<=SYSTEM_CPUS for n in nic):failures.append(f'NIC interrupt masks {[(n,irq_masks.get(n)) for n in nic]}')
+    if not nic_error and not nic or any(not cpu_list(irq_masks.get(n,'')) or not cpu_list(irq_masks.get(n,''))<=SYSTEM_CPUS for n in nic):failures.append(f'NIC interrupt masks {[(n,irq_masks.get(n)) for n in nic]}')
     if tag.endswith('-start') and any(not cpu_list(irqs.get(n,'')) or not cpu_list(irqs.get(n,''))<=SYSTEM_CPUS for n in nic):failures.append(f'NIC effective affinity {[(n,irqs.get(n)) for n in nic]}')
-    if tag.endswith('-end'):
-        before=nic_counts_on_bench_cpus(json.loads((E/f"host-guard-{tag[:-4]}-start.json").read_text())['interrupts'])
-        after=nic_counts_on_bench_cpus(interrupts)
+    if tag.endswith('-end') and prefix:
+        start_path=E/f"host-guard-{tag[:-4]}-start.json"
+        start=json.loads(start_path.read_text()) if start_path.exists() else {'nic_irq_prefix':None,'interrupts':interrupts}
+        if not start_path.exists():failures.append(f'missing {start_path.name}')
+        elif start.get('nic_irq_prefix')!=prefix:failures.append(f"NIC prefix changed: {start.get('nic_irq_prefix')} -> {prefix}")
+        before=nic_counts_on_bench_cpus(start['interrupts'],prefix)
+        after=nic_counts_on_bench_cpus(interrupts,prefix)
         moved={n:after[n]-before.get(n,0) for n in after if after[n]!=before.get(n,0)}
         if moved:failures.append(f'NIC interrupts handled on CPUs 0-3 during {tag[:-4]}: {moved}')
     if loose:failures.append(f'non-container processes allowed on benchmark CPUs: {loose}')
@@ -576,16 +599,21 @@ def cold():
 # POST search and ingest cases (bench/post-cases.json, bench/ingest-cases.json) are reused from series 7
 # unchanged; preflight checks every variant against them.
 PAIRS={
-# uvicorn HTTP protocol: h11 (as in all earlier series) versus httptools.
-'h11-httptools':{'A':'fastapi-msgspec','B':'fastapi-msgspec-httptools'},
-# uvicorn access log on (the uvicorn default) versus off (--no-access-log, as in all earlier series).
-'accesslog-off-on':{'A':'fastapi-msgspec','B':'fastapi-msgspec-accesslog'},
+# The rows of the msgspec-fastapi README benchmark table: Pydantic models (A) versus MsgspecRouter with
+# msgspec Structs (B) on POST /cities/validate, GET /cities and POST /cities/search.
+'readme-ingest':{'A':'pydantic-ingest','B':'msgspec-schema-ingest'},
+'readme-get':{'A':'pydantic','B':'msgspec-schema'},
+'readme-search':{'A':'pydantic-post','B':'msgspec-schema-post'},
+# The README note on response_model=None with MsgspecRouter.
+'readme-schema-none':{'A':'msgspec-schema','B':'msgspec-none-orm'},
 # Noise reference.
-'aa-get-fast':{'A':'fastapi-msgspec','B':'fastapi-msgspec'},
+'aa-get':{'A':'msgspec-schema','B':'msgspec-schema'},
 }
-MEASURED=['fastapi-msgspec','fastapi-msgspec-httptools','fastapi-msgspec-accesslog']
+MEASURED=['pydantic','msgspec-schema','msgspec-none-orm','pydantic-post','msgspec-schema-post','pydantic-ingest','msgspec-schema-ingest']
 assert {v for x in PAIRS.values() for v in x.values()}==set(MEASURED)
-ROUTE_GROUPS={'get':MEASURED}
+def route_group(variant):
+    return {'post':'post','ingest':'ingest'}.get(VARIANTS[variant].get('cases'),'get')
+ROUTE_GROUPS={g:[v for v in MEASURED if route_group(v)==g] for g in ('get','post','ingest')}
 
 def smoke():
     for variant in MEASURED:
@@ -594,7 +622,7 @@ def smoke():
 
 def make_protocol():
     assert all(isinstance(MATCHED_RATES[g],int) and MATCHED_RATES[g]>0 for g in ROUTE_GROUPS),'set MATCHED_RATES from the smoke points first'
-    rng=random.Random(202611180900)
+    rng=random.Random(202611241800)
     pairs=PAIRS
     orders={name:rng.sample(['ABBA']*4+['BAAB']*4,8) for name in pairs}
     schedule=[]
@@ -602,26 +630,28 @@ def make_protocol():
         names=list(pairs);rng.shuffle(names)
         schedule+=[{'round':rnd,'pair':name,'order':orders[name][rnd]} for name in names]
     sources=[q for q in sorted(F.rglob('*')) if q.is_file() and '__pycache__' not in q.parts]
-    save(E/'source-bindings.json',{str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in sources}|{str(R/n):hashlib.sha256((R/n).read_bytes()).hexdigest() for n in ('run.py','telemetry.py','host_telemetry.py','analyze.py','bin/http-load','matched-rate-rule.md','evidence/cold-pool.json','evidence/image-T.json','evidence/router-main.json')}|{str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in sorted((R/'generator').glob('*')) if q.is_file()})
+    save(E/'source-bindings.json',{str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in sources}|{str(R/n):hashlib.sha256((R/n).read_bytes()).hexdigest() for n in ('run.py','telemetry.py','host_telemetry.py','analyze.py','bin/http-load','matched-rate-rule.md','evidence/cold-pool.json','evidence/image-T.json','evidence/router-main.json','isolate.sh')}|{str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in sorted((R/'generator').glob('*')) if q.is_file()})
     rules={
     'lower_bound':'A variant whose mean API CPU over all its main points is below 0.95 core is reported as an RPS lower bound (client or latency limited), with API CPU per response as secondary metric, unless the pair is flagged by direction_under_client_limit, where it is the primary metric; never as a server capacity ratio. Classified once per variant.',
     'direction_under_client_limit':'Generator saturation is anchored to generator CPU in the static controls (static-pre before main, static after main; mean of all four). Static RPS is not used as a limit, because generator cost per response differs between the static Go server and uvicorn responses. If either side of a pair has mean generator CPU >= 0.9 x static generator CPU, the RPS direction of that pair is not reported as a server result; API CPU per response is then the primary metric. Generator CPU per response is reported per variant.',
     'pair_ratio':'The pair ratio is the measured throughput ratio with 20 closed-loop clients and memoized body verification on 2 generator CPUs; not a capacity ratio. A direction may be claimed only if the nominal interval excludes 0. The same rule applies to API CPU per response (comparisons[pair].api_cpu_us_per_response, same estimator). The primary metric of each pair is fixed in advance: RPS, or API CPU per response for pairs flagged by direction_under_client_limit; the other metric is descriptive and never replaces a null primary result. When neither side is a lower bound (API at least 0.95 core on both), the CPU interval mirrors the RPS interval and is not independent evidence. analyze.py records the decision per pair: primary_metric, primary_direction_claim_allowed, rps_direction_claim_allowed, cpu_compared_at_different_loads and cpu_interval_mirrors_rps.',
-    'redis':'Redis gets 0.2 CPU and 1024 MiB on cpuset 1 (maxmemory 900mb, noeviction) as in series 3 and 7; series 8 has no view-cache variants, so Redis holds no pages. If Redis throttled time exceeds 1% of the measurement window in any point of a variant, that variant is reported as Redis-limited.',
-    'host_drift':'The host is a cloud KVM VM with 8 vCPUs in two NUMA nodes (0-3 and 4-7); exclusive physical cores are not confirmed by the provider documentation, and zero steal does not exclude cache or memory-bandwidth contention. Per-point steal and softirq shares of CPUs 0-3 are reported and a point with steal above 1% of the window is flagged. Static controls before and after main are compared by RPS, generator CPU per response and API CPU per response; a difference above 10% in RPS or generator CPU per response flags the series as host-drifted, reported with the results. The per-round values of fastapi-msgspec (both sides of aa-get-fast and one side of the other two pairs, every round) are reported as an in-series drift trace. Per-response CPU values of this series are never set next to values of other series.',
-    'equal_load':'After main and headroom, every measured variant runs two open-loop points at %s offered RPS (GET), 30 s after a 15 s throughput warmup, order as listed then reversed. The rate follows matched-rate-rule.md: 0.7 x the minimum throughput smoke RPS of the measured variants on this server, rounded down to a multiple of 100, fixed before this protocol. API CPU per response at equal load is unpaired and reported descriptively (no interval) alongside the paired main-series value, which depends on load.'%MATCHED_RATES['get'],
-    'request_mix':'Every tenth request (global counter) is a unique cold page from the pool, taken sequentially from offset 0 in the warmup run and from offset 25000 in the measurement run (pool 80000) of each point; an exhausted pool is a client error. Every variant serves this mix from PostgreSQL (CACHE_MODE=bypass, VIEW_CACHE=disabled). Static controls use only the hot page.',
-    'headroom':'After main, the client 1/2/2/1 CPU sweep runs for fastapi-msgspec, plus two static controls.',
-    'path_disclosure':'All three measured variants are the same application and process configuration: MsgspecRouter without output schema (msgspec-fastapi main through bench/router-main-shim), direct asyncpg queries, uvloop, one uvicorn worker. h11-httptools changes only --http (h11 to httptools); accesslog-off-on changes only the access log (--no-access-log on side A, the uvicorn default access log on side B, so B/A is the cost of the log). The access log is written by the uvicorn.access logger to the container stdout, collected by the Docker json-file logging driver. That collection runs in the containerd shim of the API container and in dockerd on the system CPUs, outside the API cgroup: it is not included in API CPU per response and is reported separately per point (log_pipeline in analyze.py, the per-process CPU of the shim and of dockerd; dockerd also serves the runner and the sampler, so only the difference between the sides of accesslog-off-on is attributable to the access log). Unbound kernel work queues are restricted to CPUs 4-7. Python logging writes to stdout synchronously: if the pipe were ever full, the event loop would wait and RPS would fall without API CPU rising, and the lower_bound rule then reports that variant as an RPS lower bound (mean API CPU below 0.95 core). A log written to a file or a remote collector costs differently.',
-    'series8':'One stack: the API image built from Dockerfile-T (CPython 3.14.10, requirements-T.lock as in series 7 plus httptools 0.9.0, which uvicorn imports only with --http httptools), msgspec-fastapi main (commit in evidence/router-main.json) built on this server as one cp311-abi3 wheel and reached through bench/router-main-shim; PostgreSQL, Redis and Debian images by the same digests as in series 7. Three pairs; percentages of different pairs are never added or multiplied. With 3 pairs a nominal direction by chance is unlikely but possible; effects of the order of the aa-get-fast interval width are reported as uncertain.',
+    'redis':'Redis gets 0.2 CPU and 1024 MiB on cpuset 1 (maxmemory 900mb, noeviction) as in series 3 and 7; series 10 has no view-cache variants, so Redis holds no pages. If Redis throttled time exceeds 1% of the measurement window in any point of a variant, that variant is reported as Redis-limited.',
+    'host_drift':'The host is a cloud KVM VM with 6 vCPUs on a plan advertised as dedicated cores; exclusivity of physical cores is not verifiable from the guest, and the guest-reported CPU model (QEMU/KVM named model) is not evidence of the physical part. Zero steal does not exclude cache or memory-bandwidth contention. Per-point steal and softirq shares of CPUs 0-3 are reported and a point with steal above 1% of the window is flagged. Static controls before and after main are compared by RPS, generator CPU per response and API CPU per response; a difference above 10% in RPS or generator CPU per response flags the series as host-drifted, reported with the results. The per-round values of msgspec-schema (both sides of aa-get, side B of readme-get and side A of readme-schema-none, every round) are reported as an in-series drift trace, and the change of each estimate when any single round is left out is reported. Per-response CPU values of this series are never set next to values of other series.',
+    'equal_load':'After main and headroom, every measured variant runs two open-loop points at the offered RPS of its route group (MATCHED_RATES: get, post, ingest), 30 s after a 15 s throughput warmup, order below. The rates follow matched-rate-rule.md: per group, 0.7 x the minimum throughput smoke RPS of its measured variants on this server, rounded down to a multiple of 100, fixed before this protocol. Order: route groups get, post, ingest; within each group variants as listed in the first repetition and reversed in the second. API CPU per response at equal load is unpaired and reported descriptively (no interval) alongside the paired main-series value, which depends on load.',
+    'request_mix':'GET: every tenth request (global counter) is a unique cold page from the pool, taken sequentially from offset 0 in the warmup run and from offset 25000 in the measurement run (pool 80000) of each point; an exhausted pool is a client error; the other requests go to the hot page. POST search: the bodies of bench/post-cases.json in rotation. Ingest: the 100-city body of bench/ingest-cases.json. GET and POST search variants read PostgreSQL on every request (CACHE_MODE=bypass, VIEW_CACHE=disabled); ingest variants do not touch the database. Static controls use only the hot page.',
+    'headroom':'After main, the client 1/2/2/1 CPU sweep runs for msgspec-schema (GET) and msgspec-schema-ingest (23 KB request bodies), plus two static controls. 2 client CPUs is the maximum of the generator cpuset, so the sweep cannot show a limit at 2 CPUs; it can only rule one out. Per variant, analyze.py reports mean RPS at 1 and 2 client CPUs and mean API and generator CPU at 2. generator_not_limiting_at_2_cpus is true only if all four points exist, mean RPS at 1 CPU is at least 0.95 x mean RPS at 2 CPUs and mean generator CPU at 2 CPUs is below 1.8; otherwise null, with the reason. It concerns generator CPU only: true does not exclude a limit from the 20 closed-loop connections. Descriptive only; lower_bound and direction_under_client_limit stay the deciding rules.',
+    'log_pipeline':'CPU of the API container containerd shim and of the whole dockerd daemon per API response is reported descriptively only (mean_log_pipeline_us_per_response). dockerd time includes daemon-wide harness activity (the telemetry sampler json-file logging, the generator docker exec session, the docker events subscription during main); with the access log off the API container is expected to write no output (checked in preflight only, not per point). Values come from 10 ms process ticks, so small per-response values are quantization noise.',
+    'post':'POST search pairs use the GET configurations with the search body as input; the response contract (Page[City] JSON body) is the same on both sides. Their search bodies are small (123-394 bytes as sent, compact, from bench/post-cases.json), so the share of input decoding is not identifiable from them: they also change the output validation and serialization path (in readme-search: Pydantic response_model versus msgspec typed output), the SQL differs from GET, and the BodyLimits per-byte Python scan of every search body is expected to cost more than the decoding itself (a series 3 code note, not measured in this series). The input contract is isolated by readme-ingest: a 23 KB batch decoded and validated by Pydantic through FastAPI (json.loads, then validation) or by the msgspec router (msgspec Decoder, then a UTF-8 check of a body with non-ASCII bytes, as in msgspec-fastapi 0.1.0), no database, a constant small response; the BodyLimits per-byte scan is skipped on that route only (size, media type and UTF-8 checks remain), so NaN or duplicate keys in an invalid batch may be classified differently by the two paths; preflight compares valid and selected invalid batches. The difference between POST and GET API CPU per response of the same variant is reported descriptively (same series), never as a sum or difference of pair percentages.',
+    'path_disclosure':'pydantic: FastAPI with Pydantic response_model and SQLAlchemy ORM; msgspec-schema: MsgspecRouter (msgspec-fastapi main through bench/router-main-shim) with a msgspec Struct response_model and SQLAlchemy ORM; msgspec-none-orm: the same without output schema. POST variants: the same app; Pydantic parses the body through FastAPI (json.loads, then validation), the msgspec router decodes the raw body with a msgspec Decoder and, for a body with non-ASCII bytes, also checks it as UTF-8 (msgspec-fastapi 0.1.0); BodyLimits middleware scans every POST search body in both, and is skipped on /cities/validate only. Every variant runs one uvicorn worker with --http httptools, --loop uvloop and --no-access-log; the mapped httptools and uvloop modules are checked at every point.',
+    'series10':'Series 9 repeated on a new server with the msgspec-fastapi 0.1.0 code; the harness is as in series 9 except names, port, seed, matched rates and the FastAPI version, besides the router source and its descriptions. One stack: the API image built from Dockerfile-T (CPython 3.14.10, requirements-T.lock of series 8 and 9, with FastAPI 0.165.0 instead of 0.147.0, the newest release supported by msgspec-fastapi 0.1.0 at measurement time), msgspec-fastapi main with the pyproject prepared for 0.1.0 (commit in evidence/router-main.json) built on this server as one cp311-abi3 wheel and reached through bench/router-main-shim; PostgreSQL, Redis and Debian images by the same digests as in series 7 and 8. Five pairs; percentages of different pairs are never added or multiplied. Series 7 (h11 and asyncio) and series 9 (msgspec-fastapi before 0.1.0) measured the same readme pairs on other hosts; no series is combined with this one into a change, because the host differs. With 5 pairs a nominal direction by chance is unlikely but possible; effects of the order of the aa-get interval width are reported as uncertain.',
     }
-    save(E/'protocol.json',{'pairs':pairs,'random_seed':202611180900,'warmup_seconds':30,'measurement_seconds':60,'blocks_per_pair':8,'points':4*len(schedule),'hashseeds':[2100+i for i in range(8)],'concurrency':WORKERS,'cold_every':COLD_EVERY,'cold_pool':COLD_POOL,'cold_offsets':COLD_OFFSETS,'redis_cpu':0.2,'redis_memory_mib':1024,'api_cpu':1,'generator_cpu':2,'pg_cpu':0.75,'schedule':schedule,'matched_rates':MATCHED_RATES,'route_groups':ROUTE_GROUPS,
-      'interpretation_rules':rules,'scope':'Series 8: the method of series 3 and 7 applied to two uvicorn settings of the optimized FastAPI variant (fastapi-msgspec): the HTTP protocol implementation (h11 versus httptools) and the access log (on versus off), plus the aa-get-fast noise reference. Request mix, generator, body verification, estimator and guards as in series 7.','environment':json.loads((E/'host-environment.json').read_text()) if (E/'host-environment.json').exists() else None,'platform_note':'All runtime images and Go executables are amd64. msgspec is the official 0.22.0 PyPI wheel.','environment_guards':'Pinned image IDs and source bindings; own container inventory before/after each point, lifecycle Docker events during main; host isolation guard at main start and end and at post start and end (API, PostgreSQL, Redis, sampler and generator on CPUs 0-3, NUMA node 0; Docker, containerd, user sessions, init and NIC interrupts on CPUs 4-7, NUMA node 1); stack probe (interpreter, package versions, router files, HTTP protocol module and access log lines) per variant in preflight.','duration_selection':'Fixed 30/60 as in series 3 and 7; no result-dependent duration adjustment.','failure_policy':'Any load error, missing telemetry, source/image change, foreign-container event or failed guard stops campaign; no retry or outlier exclusion.'})
+    save(E/'protocol.json',{'pairs':pairs,'random_seed':202611241800,'warmup_seconds':30,'measurement_seconds':60,'blocks_per_pair':8,'points':4*len(schedule),'hashseeds':[2100+i for i in range(8)],'concurrency':WORKERS,'cold_every':COLD_EVERY,'cold_pool':COLD_POOL,'cold_offsets':COLD_OFFSETS,'redis_cpu':0.2,'redis_memory_mib':1024,'api_cpu':1,'generator_cpu':2,'pg_cpu':0.75,'schedule':schedule,'matched_rates':MATCHED_RATES,'route_groups':ROUTE_GROUPS,
+      'interpretation_rules':rules,'scope':'Series 10: the msgspec-fastapi README comparisons (Pydantic models versus MsgspecRouter with msgspec Structs on POST /cities/validate, GET /cities and POST /cities/search, and response_model=None with MsgspecRouter) served by uvicorn with httptools and uvloop, plus the aa-get noise reference. Request mix, generator, body verification, estimator and guards as in series 7, 8 and 9.','environment':json.loads((E/'host-environment.json').read_text()) if (E/'host-environment.json').exists() else None,'platform_note':'All runtime images and Go executables are amd64. msgspec is the official 0.22.0 PyPI wheel.','environment_guards':'Pinned image IDs and source bindings; own container inventory before/after each point, lifecycle Docker events during main; host isolation guard at main start and end and at post start and end (API, PostgreSQL, Redis, sampler and generator on CPUs 0-3; Docker, containerd, user sessions, init, unbound kernel work queues and the interrupts of the default-route virtio NIC on CPUs 4-5; other interrupts, including disk queues, are moved to CPUs 4-5 where the kernel allows, but not checked); stack probe (interpreter, package versions, router files, HTTP protocol and loop modules, no access log lines) per variant in preflight.','duration_selection':'Fixed 30/60 as in series 3, 7, 8 and 9; no result-dependent duration adjustment.','failure_policy':'Any load error, missing telemetry, source/image change, foreign-container event or failed guard stops campaign; no retry or outlier exclusion.'})
     print('protocol written',flush=True)
 
 def headroom():
     try:
-        for variant in ('fastapi-msgspec',):
+        for variant in ('msgspec-schema','msgspec-schema-ingest'):
             for i,cpus in enumerate([1,2,2,1]):
                 cmd('docker','update','--cpus',str(cpus),GEN)
                 point(f'headroom-{variant}-{i}-client{cpus}',variant,2050,15,30,procs=cpus)
@@ -635,7 +665,7 @@ def static_pre():
 
 # 0.7 x the minimum smoke RPS of the measured variants, rounded down to a multiple of 100
 # (matched-rate-rule.md); set from this server's smoke points before the protocol.
-MATCHED_RATES={'get': 400}
+MATCHED_RATES={'get': 300, 'post': 200, 'ingest': 1200}
 def post():
     """After main: client headroom sweep, static controls, equal-load points."""
     host_guard('post-start')
@@ -660,7 +690,7 @@ BUILDER='python:3.14.10@sha256:a0362a0fda63931168dbae73de63cdffd798aa7a52c8cf7fa
 SETUPTOOLS='84.2.1'
 REGEXRS={'regexrs_py-0.2.0-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl':'b079d42212745f355aa9fec04d0e2d64256f2c329a94a62842620abcd1f1e4b2',
          'regexrs_py-0.2.0-cp311-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl':'91112e10f279f6a9fa3e97d006d2263a302bc7f4a8f103d6dfce08395e209549'}
-TAG_T='msgspec-talk-s8-api-t'
+TAG_T='msgspec-talk-s10-api-t'
 def tree_hashes(root):
     return {str(q.relative_to(root)):hashlib.sha256(q.read_bytes()).hexdigest() for q in sorted(root.rglob('*')) if q.is_file()}
 def build():
@@ -685,11 +715,11 @@ def build():
         'pip wheel --no-deps --no-build-isolation --no-cache-dir -w /out /tmp/src')
     cmd('docker','run','--rm','-v',str(wheels)+':/out','--entrypoint','pip',image,'download','--no-deps','--only-binary',':all:','--no-cache-dir','-d','/out','regexrs-py==0.2.0')
     built=sorted(q.name for q in wheels.glob('msgspec_fastapi-*.whl'));regexrs=sorted(q.name for q in wheels.glob('regexrs_py-*.whl'))
-    assert len(built)==1 and built[0].startswith('msgspec_fastapi-0.0.4-cp311-abi3-linux_'),built
+    assert len(built)==1 and built[0].startswith('msgspec_fastapi-0.1.0-cp311-abi3-linux_'),built
     assert len(regexrs)==1 and hashlib.sha256((wheels/regexrs[0]).read_bytes()).hexdigest()==REGEXRS[regexrs[0]],regexrs
     cmd('docker','run','--rm','-v',str(wheels)+':/wheels:ro','-v',str(site)+':/site','--entrypoint','pip',image,'install','--no-deps','--no-index','--no-compile',
         '--no-cache-dir','--root-user-action=ignore','--target','/site','/wheels/'+built[0],'/wheels/'+regexrs[0])
-    save(E/'router-main.json',{'commit':src['commit'],'tree':src['tree'],'builder':BUILDER,'setuptools':SETUPTOOLS,
+    save(E/'router-main.json',{'commit':src['commit'],'tree':src['tree'],'source':src['source'],'builder':BUILDER,'setuptools':SETUPTOOLS,
         'wheels':{n:hashlib.sha256((wheels/n).read_bytes()).hexdigest() for n in built+regexrs},'site_sha256':tree_hashes(site)})
     # Written last: an existing image-T.json marks a completed build.
     save(E/'image-T.json',image_record)

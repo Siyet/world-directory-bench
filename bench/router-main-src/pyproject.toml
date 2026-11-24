@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "msgspec-fastapi"
-version = "0.0.4"
-description = "Experimental FastAPI router that decodes request bodies and encodes responses with msgspec"
+version = "0.1.0"
+description = "FastAPI router that decodes request bodies and encodes responses with msgspec"
 readme = "README.md"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [{ name = "Aleksandr Tseluiko" }]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Framework :: FastAPI",
     "Intended Audience :: Developers",
     "Programming Language :: C",
@@ -27,7 +27,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "fastapi>=0.142.2,<0.148",
+    "fastapi>=0.142.2,<0.166",
     "msgspec>=0.22.0",
     "regexrs-py>=0.2.0,<0.3",
 ]
@@ -51,7 +51,7 @@ where = ["src"]
 msgspec_fastapi = ["*.pyi", "py.typed"]
 
 [tool.cibuildwheel]
-build = "cp3{11,12,13,14}-*"
+build = "cp3{11,12,13,14}-* cp314t-*"
 skip = "*-manylinux_i686 *-musllinux_i686 *-win32"
 test-requires = ["pytest", "httpx", "httpx2", "python-multipart", "tzdata; sys_platform == 'win32'"]
 test-command = "pytest {project}/tests"
